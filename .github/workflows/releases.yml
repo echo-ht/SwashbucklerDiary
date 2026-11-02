@@ -81,7 +81,7 @@ jobs:
       # Install MAUI Workloads
       - name: Install MAUI Workloads
         run: |
-          dotnet workload install maui --ignore-failed-sources
+          dotnet workload install maui --version 10.0.401 --ignore-failed-sources
 
       # Install JDK
       - name: Setup JDK
