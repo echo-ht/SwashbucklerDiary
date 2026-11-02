@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+
+		<ApplicationId>com.moxia.diary</ApplicationId>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<!-- Debug configuration settings -->
+		<ApplicationId>com.moxia.diary.debug</ApplicationId>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Maui.Essentials\Maui.Essentials.csproj" />
+		<ProjectReference Include="..\MoXia.Control\MoXia.Control.csproj" />
+		<ProjectReference Include="..\MoXia.Rcl.Web\MoXia.Rcl.Web.csproj" />
+		<ProjectReference Include="..\MoXia.Rcl\MoXia.Rcl.csproj">
+			<AdditionalProperties>EnableCopyRclStaticFiles=true</AdditionalProperties>
+		</ProjectReference>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+	</ItemGroup>
+
+	<Import Project="..\Maui.Essentials\AssemblyAttributes.targets" />
+</Project>

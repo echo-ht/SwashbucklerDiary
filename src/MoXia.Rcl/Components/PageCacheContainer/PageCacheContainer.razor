@@ -1,0 +1,8 @@
+@namespace MoXia.Rcl.Components
+@inherits MyComponentBase
+
+<PPageContainerReplacement @ref="pPageContainerReplacement"
+                           PageUpdate="allowPageUpdate"
+                           OnLocationChanged="HandlePageCacheUpdate">
+    @ChildContent
+</PPageContainerReplacement>

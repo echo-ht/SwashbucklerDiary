@@ -1,0 +1,278 @@
+@page "/ai"
+@namespace MoXia.Rcl.Pages
+@inherits ImportantComponentBase
+
+<MyAppBar>
+    <MToolbarTitle Class="font-weight-bold flex-grow-1">
+        <div class="ai-appbar-title">
+            <span class="ai-appbar-icon"><MIcon>auto_awesome</MIcon></span>
+            <wc-auto-scroll-text>@(I18n.T("AI Notes"))</wc-auto-scroll-text>
+        </div>
+    </MToolbarTitle>
+    <MButton Icon="true"
+             Disabled="@(turns.Count == 0 || isSending || isDrafting)"
+             OnClick="NewConversation">
+        <MIcon>add_comment</MIcon>
+    </MButton>
+    <MButton Icon="true"
+             OnClick="@(() => To("aiSetting"))">
+        <MIcon>tune</MIcon>
+    </MButton>
+</MyAppBar>
+
+<ScrollContainer Class="ai-scroll" ContentClass="ai-page">
+    <section class="ai-hero">
+        <div class="ai-hero__copy">
+            <div class="ai-eyebrow"><span></span> MOXIA INTELLIGENCE</div>
+            <h1>@(I18n.T("Let every note answer your questions"))</h1>
+            <p>@(I18n.T("Ask across your diaries with private, local vector retrieval and any OpenAI-compatible model."))</p>
+        </div>
+        <div class="ai-hero__badge">
+            <MIcon>hub</MIcon>
+            <div>
+                <small>@(I18n.T("Embedding mode"))</small>
+                <strong>@indexService.EmbeddingModeLabel</strong>
+            </div>
+        </div>
+    </section>
+
+    @if (privacyMode)
+    {
+        <div class="ai-privacy-banner">
+            <MIcon>shield</MIcon>
+            <span>@(I18n.T("Privacy mode is on. Only the current private library is indexed, but selected note excerpts will still be sent to your AI provider when you ask."))</span>
+        </div>
+    }
+
+    <div class="ai-grid">
+        <aside class="ai-sidebar">
+            <MCard Class="ai-knowledge-card" Elevation="0" Rounded="@("xl")">
+                <div class="ai-card-heading">
+                    <div>
+                        <span class="ai-card-kicker">@(I18n.T("Knowledge base"))</span>
+                        <h2>@(I18n.T("Your notes, connected"))</h2>
+                    </div>
+                    <span class="ai-status-dot @KnowledgeStateClass" title="@KnowledgeStateText"></span>
+                </div>
+
+                <div class="ai-metrics">
+                    <div class="ai-metric">
+                        <strong>@status.IndexedDiaryCount</strong>
+                        <span>@(I18n.T("Notes"))</span>
+                    </div>
+                    <div class="ai-metric">
+                        <strong>@status.ChunkCount</strong>
+                        <span>@(I18n.T("Chunks"))</span>
+                    </div>
+                    <div class="ai-metric">
+                        <strong>@(status.SignatureCount > 1 ? "!" : "✓")</strong>
+                        <span>@KnowledgeStateText</span>
+                    </div>
+                </div>
+
+                @if (isIndexing)
+                {
+                    <div class="ai-index-progress">
+                        <div class="d-flex align-center justify-space-between mb-2">
+                            <span>@(I18n.T("Updating index"))</span>
+                            <span>@ProgressText</span>
+                        </div>
+                        <MProgressLinear Indeterminate="@(indexProgress is null)" Value="ProgressPercent" Color="primary" Height="6" Rounded></MProgressLinear>
+                        @if (!string.IsNullOrWhiteSpace(indexProgress?.CurrentTitle))
+                        {
+                            <div class="text-caption text--secondary mt-2">@indexProgress.CurrentTitle</div>
+                        }
+                    </div>
+                }
+                else if (status.ChunkCount == 0)
+                {
+                    <div class="ai-index-note">@(I18n.T("Build the index once, then AI can search your notes locally."))</div>
+                }
+                else if (status.StaleChunkCount > 0 || status.UnindexedDiaryCount > 0 || status.SignatureCount > 1)
+                {
+                    <div class="ai-index-warning">
+                        <MIcon>sync_problem</MIcon>
+                        <span>@(I18n.T("Some notes or vectors are out of date. Rebuild to keep answers accurate."))</span>
+                    </div>
+                }
+
+                <div class="ai-knowledge-actions">
+                    <MButton Color="primary"
+                             Depressed
+                             Rounded
+                             Small
+                             Loading="isIndexing"
+                             Disabled="isIndexing"
+                             OnClick="RebuildIndexAsync">
+                        <MIcon Class="me-2">database</MIcon>
+                        @(status.ChunkCount == 0 ? I18n.T("Build index") : I18n.T("Update index"))
+                    </MButton>
+                    <MButton Text Rounded Small OnClick="@(() => To("aiSetting"))">
+                        @(I18n.T("AI settings"))
+                    </MButton>
+                </div>
+            </MCard>
+
+            <div class="ai-insight-card">
+                <div class="ai-insight-card__icon"><MIcon>lock</MIcon></div>
+                <div>
+                    <strong>@(I18n.T("Local first"))</strong>
+                    <p>@(I18n.T("Vectors live in your diary database. Only the question and retrieved excerpts are sent to the model you configure."))</p>
+                </div>
+            </div>
+
+            @if (turns.Count == 0)
+            {
+                <div class="ai-suggestions">
+                    <span class="ai-card-kicker">@(I18n.T("Try asking"))</span>
+                    @foreach (var suggestion in Suggestions)
+                    {
+                        <button type="button" @onclick="() => SendSuggestionAsync(suggestion)">
+                            <MIcon>north_east</MIcon>
+                            <span>@suggestion</span>
+                        </button>
+                    }
+                </div>
+            }
+        </aside>
+
+        <section class="ai-chat-shell">
+            <header class="ai-chat-header">
+                <div>
+                    <div class="ai-chat-title">
+                        @(turns.Count == 0 ? I18n.T("New conversation") : I18n.T("Conversation"))
+                    </div>
+                    <div class="ai-chat-subtitle">
+                        @(isSending ? I18n.T("Searching your notes and thinking…") : I18n.T("Answers are grounded in the notes you indexed."))
+                    </div>
+                </div>
+                <div class="ai-chat-actions">
+                    @if (turns.Count > 0)
+                    {
+                        <MButton Text
+                                 Small
+                                 Rounded
+                                 Loading="isDrafting"
+                                 Disabled="@(isSending || isDrafting)"
+                                 OnClick="GenerateNoteDraftAsync">
+                            <MIcon Class="me-1">note_add</MIcon>
+                            @(I18n.T("Turn into note"))
+                        </MButton>
+                        <MButton Icon="true"
+                                 Small
+                                 Disabled="@(isSending || isDrafting)"
+                                 OnClick="NewConversation">
+                            <MIcon>delete_sweep</MIcon>
+                        </MButton>
+                    }
+                </div>
+            </header>
+
+            <div class="ai-message-list">
+                @if (turns.Count == 0)
+                {
+                    <div class="ai-empty-state">
+                        <div class="ai-empty-orbit">
+                            <span></span>
+                            <MIcon>auto_awesome</MIcon>
+                        </div>
+                        <h3>@(I18n.T("What would you like to remember?"))</h3>
+                        <p>@(I18n.T("Ask a question, connect ideas, or turn a conversation into a new note."))</p>
+                    </div>
+                }
+
+                @foreach (var turn in turns)
+                {
+                    <div @key="turn" class="ai-message @(turn.Message.Role == "user" ? "ai-message--user" : "ai-message--assistant")">
+                        <div class="ai-avatar @(turn.Message.Role == "user" ? "ai-avatar--user" : "ai-avatar--assistant")">
+                            <MIcon>@(turn.Message.Role == "user" ? "person" : "auto_awesome")</MIcon>
+                        </div>
+                        <div class="ai-bubble">
+                            @if (turn.Message.Role == "user")
+                            {
+                                <div class="ai-user-text">@turn.Message.Content</div>
+                            }
+                            else
+                            {
+                                <SimpleMarkdownPreview Value="@turn.Message.Content" Optimize="false" Class="ai-markdown" />
+                                @if (turn.Sources.Count > 0)
+                                {
+                                    <div class="ai-sources">
+                                        <span class="ai-sources__label">@(I18n.T("Sources"))</span>
+                                        @foreach (var source in turn.Sources)
+                                        {
+                                            <button type="button" class="ai-source-chip" @onclick="() => OpenNote(source.DiaryId)">
+                                                <MIcon>description</MIcon>
+                                                <span>@source.Title</span>
+                                                <em>@(Math.Round(source.Score * 100))%</em>
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (isSending)
+                {
+                    <div class="ai-message ai-message--assistant">
+                        <div class="ai-avatar ai-avatar--assistant"><MIcon>auto_awesome</MIcon></div>
+                        <div class="ai-bubble ai-typing">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(errorText))
+                {
+                    <div class="ai-error-banner">
+                        <MIcon>error_outline</MIcon>
+                        <span>@errorText</span>
+                        <button type="button" @onclick="() => errorText = null"><MIcon>close</MIcon></button>
+                    </div>
+                }
+            </div>
+
+            <footer class="ai-composer-wrap">
+                <div class="ai-composer">
+                    <MTextarea @bind-Value="question"
+                               Placeholder="@(I18n.T("Ask your notes…"))"
+                               Filled
+                               Class="rounded-xl ai-composer__input"
+                               HideDetails="@("auto")"
+                               Rows="1"
+                               AutoGrow
+                               MaxRows="5"
+                               Disabled="isSending">
+                    </MTextarea>
+                    <button type="button"
+                            class="ai-send-button @(isSending ? "is-stop" : string.Empty)"
+                            disabled="@(!isSending && string.IsNullOrWhiteSpace(question))"
+                            title="@(isSending ? I18n.T("Stop") : I18n.T("Send"))"
+                            @onclick="SendOrCancelAsync">
+                        @if (isSending)
+                        {
+                            <MIcon>stop</MIcon>
+                        }
+                        else
+                        {
+                            <MIcon>arrow_upward</MIcon>
+                        }
+                    </button>
+                </div>
+                <div class="ai-composer-hint">
+                    <span>@(I18n.T("AI can make mistakes. Verify important details in your notes."))</span>
+                    <span>@I18n.T("Top K") · @topK</span>
+                </div>
+            </footer>
+        </section>
+    </div>
+</ScrollContainer>
+
+<SaveAiNoteDialog @bind-Visible="showSaveDialog"
+                  InitialTitle="@draftTitle"
+                  InitialContent="@draftContent"
+                  Saving="isSavingNote"
+                  OnSave="SaveNoteAsync">
+</SaveAiNoteDialog>

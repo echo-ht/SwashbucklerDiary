@@ -1,0 +1,88 @@
+@namespace MoXia.Rcl.Components
+@inherits DialogComponentBase
+
+<MultiSizeDisplay>
+    <MobileContent>
+        <CustomMBottomSheet MyValue="Visible"
+                            MyValueChanged="InternalVisibleChanged"
+                            ContentClass="rounded-t-lg">
+            <MCard Class="rounded-t-lg py-2">
+                <MList>
+                    <div @onclick="HandleOnCancel">
+                        @foreach (var item in DynamicListItems)
+                        {
+                            @if (item.Show)
+                            {
+                                <MListItem @key="item"
+                                           OnClick="item.OnClick">
+                                    <MListItemIcon>
+                                        <MIcon>
+                                            @(item.Icon)
+                                        </MIcon>
+                                    </MListItemIcon>
+                                    <MListItemContent>
+                                        <wc-auto-scroll-text>@(I18n.T(item.Text))</wc-auto-scroll-text>
+                                    </MListItemContent>
+                                </MListItem>
+
+                                <MDivider></MDivider>
+                            }
+                        }
+                    </div>
+                    <MListItem>
+                        <MButton Rounded="true"
+                                 Block="true"
+                                 Depressed="true"
+                                 Large="true"
+                                 Class="text-subtitle-1"
+                                 Color="rgba(var(--m-theme-surface-container-high))"
+                                 OnClick="HandleOnCancel">
+                            @(I18n.T("Cancel"))
+                        </MButton>
+                    </MListItem>
+                </MList>
+            </MCard>
+        </CustomMBottomSheet>
+    </MobileContent>
+    <DesktopContent>
+        <CustomMDialog MyValue="Visible"
+                       MyValueChanged="InternalVisibleChanged"
+                       ContentClass="rounded-lg"
+                       MaxWidth="420">
+            <MCard>
+                <MCardTitle Class="font-weight-bold flex-nowrap">
+                    <wc-auto-scroll-text>@Title</wc-auto-scroll-text>
+                    <MSpacer></MSpacer>
+                    <MButton Icon="true"
+                             OnClick="HandleOnCancel">
+                        <MIcon>close</MIcon>
+                    </MButton>
+                </MCardTitle>
+                <MCardText>
+                    <div @onclick="HandleOnCancel">
+                        @foreach (var item in DynamicListItems)
+                        {
+                            @if (item.Show)
+                            {
+                                <MListItem @key="item"
+                                           Class="px-0"
+                                           OnClick="item.OnClick">
+                                    <MListItemIcon Class="my-3">
+                                        <MIcon>
+                                            @(item.Icon)
+                                        </MIcon>
+                                    </MListItemIcon>
+                                    <MListItemContent>
+                                        <MListItemTitle>
+                                            <wc-auto-scroll-text>@(I18n.T(item.Text))</wc-auto-scroll-text>
+                                        </MListItemTitle>
+                                    </MListItemContent>
+                                </MListItem>
+                            }
+                        }
+                    </div>
+                </MCardText>
+            </MCard>
+        </CustomMDialog>
+    </DesktopContent>
+</MultiSizeDisplay>

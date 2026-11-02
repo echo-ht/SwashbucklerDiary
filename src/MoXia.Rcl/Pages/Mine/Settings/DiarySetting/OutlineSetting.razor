@@ -1,0 +1,50 @@
+@page "/outlineSetting"
+@namespace MoXia.Rcl.Pages
+@inherits ImportantComponentBase
+
+<MyAppBar Title="@(I18n.T("Outline"))"
+          OnClick="NavigateToBack">
+</MyAppBar>
+
+<ScrollContainer>
+    <MCard Class="mb-5"
+           Elevation="0"
+           Rounded="@("lg")">
+        <MList Class="py-0">
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        format_list_bulleted
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Display outline"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="showOutline"
+                                   SettingKey="@nameof(Setting.Outline)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        format_align_right
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Position on the right"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="rightOutline"
+                                   SettingKey="@nameof(Setting.RigthOutline)"
+                                   OnChange="HandleRigthOutlineOnChange">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+        </MList>
+    </MCard>
+</ScrollContainer>

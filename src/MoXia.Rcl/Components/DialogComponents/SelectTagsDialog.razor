@@ -1,0 +1,82 @@
+@namespace MoXia.Rcl.Components
+@inherits DialogComponentBase
+
+<CustomMDialog MyValue="Visible"
+               MyValueChanged="InternalVisibleChanged"
+               ContentClass="rounded-lg"
+               MaxWidth="420"
+               Scrollable="true"
+               OnBeforeShowContent="BeforeShowContent">
+    <MCard>
+        <MCardTitle Class="font-weight-bold flex-nowrap">
+            <wc-auto-scroll-text>@(I18n.T("Select tags"))</wc-auto-scroll-text>
+            <MSpacer></MSpacer>
+            <MButton Icon="true"
+                     OnClick="() => showSearch = !showSearch">
+                <MIcon>search</MIcon>
+            </MButton>
+            <MButton Icon="true"
+                     OnClick="HandleOnCancel">
+                <MIcon>close</MIcon>
+            </MButton>
+        </MCardTitle>
+        <MCardText Class="pb-0 d-flex flex-column">
+            @if (showSearch)
+            {
+                <CustomMTextField @bind-Value="_searchText"
+                                  Class="mb-2"
+                                  OnInput="UpdateInternalItems"
+                                  Dense
+                                  TValue="string"
+                                  Filled
+                                  Rounded
+                                  Clearable
+                                  Color="currentColor"
+                                  HideDetails="@("auto")"
+                                  spellcheck="false"
+                                  Placeholder="@(I18n.T("Search"))"
+                                  PrependInnerIcon="search">
+                </CustomMTextField>
+            }
+            <div class="scroll-show flex-grow-1" style="overflow-y:auto;">
+                <MChipGroup @bind-Values="SelectedTagIds"
+                            Column="true"
+                            Multiple="true">
+                    @foreach (var item in internalItems)
+                    {
+                        <MChip @key="item.Id"
+                               Value="@(item.Id.ToString())"
+                               Filter="true">
+                            @(item.Name)
+                        </MChip>
+                    }
+                </MChipGroup>
+            </div>
+        </MCardText>
+        <MCardActions>
+            <div class="m-card__actions__left">
+                <MButton Text="true"
+                         OnClick="() => showAddTag = true">
+                    <wc-auto-scroll-text>@(I18n.T("Add tags"))</wc-auto-scroll-text>
+                </MButton>
+            </div>
+            <div class="m-card__actions__right">
+                <MButton Text="true"
+                         OnClick="HandleOnCancel">
+                    <wc-auto-scroll-text>@(I18n.T("Cancel"))</wc-auto-scroll-text>
+                </MButton>
+                <MButton Text="true"
+                         Color="primary"
+                         OnClick="HandleOnSave">
+                    <wc-auto-scroll-text>@(I18n.T("Save"))</wc-auto-scroll-text>
+                </MButton>
+            </div>
+        </MCardActions>
+    </MCard>
+</CustomMDialog>
+
+<InputDialog @bind-Visible="showAddTag"
+             Title="@(I18n.T("Add tags"))"
+             Placeholder="@(I18n.T("Please enter a tag name"))"
+             OnOK="SaveAddTag">
+</InputDialog>

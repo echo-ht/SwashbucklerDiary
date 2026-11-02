@@ -1,0 +1,37 @@
+@namespace MoXia.Rcl.Components
+@inherits OpenCloseComponentBase
+
+@if (Visible)
+{
+    <MyAppBar>
+        <TransparentTextField Value="@Value"
+                              ValueChanged="HandleValueChanged"
+                              OnInput="Search"
+                              Clearable="false"
+                              Autofocus="Autofocus"
+                              Placeholder="@I18n.T("Look it up on the page")">
+        </TransparentTextField>
+        @if (!string.IsNullOrWhiteSpace(Value))
+        {
+            <div class="px-3" style="flex: 0 0 auto;">@(searchIndex + 1)/@(count)</div>
+        }
+        <MButton Icon="true"
+                 OnClick="Up">
+            <MIcon>
+                keyboard_arrow_up
+            </MIcon>
+        </MButton>
+        <MButton Icon="true"
+                 OnClick="Down">
+            <MIcon>
+                keyboard_arrow_down
+            </MIcon>
+        </MButton>
+        <MButton Icon="true"
+                 OnClick="()=>InternalVisibleChanged(false)">
+            <MIcon>
+                close
+            </MIcon>
+        </MButton>
+    </MyAppBar>
+}

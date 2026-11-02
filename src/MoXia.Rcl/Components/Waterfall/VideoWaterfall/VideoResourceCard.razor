@@ -1,0 +1,9 @@
+@namespace MoXia.Rcl.Components
+@inherits MediaResourceComponentBase
+
+<video @oncontextmenu="OpenMenu"
+       @oncontextmenu:preventDefault="true"
+       @attributes="activatorAttributes"
+       class="video-card rounded-lg"
+       src="@src" />
+       

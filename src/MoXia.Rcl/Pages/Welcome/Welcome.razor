@@ -1,0 +1,11 @@
+@page "/welcome"
+@namespace MoXia.Rcl.Pages
+@inherits ImportantComponentBase
+
+<WelcomeLanguage Show="showLanguga"
+                 OnClick="SetLanguage">
+</WelcomeLanguage>
+<WelcomeAgreement Show="!showLanguga && showAgreement"
+                  OnOK="Argee"
+                  OnCancel="Disagree">
+</WelcomeAgreement>

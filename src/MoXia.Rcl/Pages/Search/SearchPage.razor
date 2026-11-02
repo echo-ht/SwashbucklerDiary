@@ -1,0 +1,93 @@
+@page "/search"
+@namespace MoXia.Rcl.Pages
+@inherits DiariesPageComponentBase
+
+<MToolbar Elevation="0" Extended>
+    <ChildContent>
+        <MButton Icon="true"
+                 OnClick="NavigateToBack">
+            <MIcon>arrow_back</MIcon>
+        </MButton>
+
+        <TransparentTextField @bind-Value="search"
+                              Placeholder="@(I18n.T("Please enter diary keywords"))"
+                              OnInput="UpdateDiariesAsync">
+        </TransparentTextField>
+
+        <MButton Icon="true"
+                 OnClick="()=>showFilterCondition=true">
+            <MIcon>mdi:mdi-filter-cog-outline</MIcon>
+        </MButton>
+    </ChildContent>
+    <ExtensionContent>
+        <MChip Class="me-2"
+               Style="min-width:fit-content;"
+               Active="ShowClearFilter"
+               OnClick="ClearFilter">
+            <MIcon>mdi:mdi-filter-variant-remove</MIcon>
+        </MChip>
+        <MChipGroup Style="min-width:0;"
+                    ShowArrows="true">
+            @foreach (var item in filterItems)
+            {
+                <MChip IsActive="false"
+                       OnClick="item.OnClick">
+                    <ExpandXTransition>
+                        <MIcon TransitionShow="item.Show"
+                               Icon="@("check")" Left />
+                    </ExpandXTransition>
+                    @I18n.T(item.Text)
+                    <MIcon Right>keyboard_arrow_down</MIcon>
+                </MChip>
+            }
+        </MChipGroup>
+    </ExtensionContent>
+</MToolbar>
+
+<ScrollContainer Id="@scrollContainerId">
+    <DiaryCardList @bind-Value="Diaries"
+                   @bind-Tags="Tags"
+                   NotFoundText="@(I18n.T("Not Found"))"
+                   OnClick="ToRead">
+    </DiaryCardList>
+</ScrollContainer>
+
+<div class="right-bottom-float-area">
+    <BackTopButton Selector="@scrollContainerSelector">
+    </BackTopButton>
+</div>
+
+<SelectTagsDialog @bind-Visible="showTags"
+                  @bind-Value="SelectedTags"
+                  @bind-Items="Tags">
+</SelectTagsDialog>
+
+<SelectWeatherDialog @bind-Visible="showWeather"
+                     @bind-Values="@SelectedWeathers"
+                     @bind-ShowText="showIconText"
+                     Multiple>
+</SelectWeatherDialog>
+
+<SelectMoodDialog @bind-Visible="showMood"
+                  @bind-Values="@SelectedMoods"
+                  @bind-ShowText="showIconText"
+                  Multiple>
+</SelectMoodDialog>
+
+<SelectLocationDialog @bind-Visible="showLocation"
+                      @bind-Values="SelectedLocations"
+                      Multiple>
+</SelectLocationDialog>
+
+<SelectFileTypesDialog @bind-Visible="showFileTypes"
+                       @bind-Value="SelectedFileTypes">
+</SelectFileTypesDialog>
+
+<DateFilterDialog @bind-Visible="showTime"
+                  @bind-Value="DateFilterForm">
+</DateFilterDialog>
+
+<SearchFilterConditionDialog @bind-Visible="showFilterCondition"
+                             Value="SearchFilterConditionForm"
+                             OnOk="SaveSearchFilterCondition">
+</SearchFilterConditionDialog>

@@ -1,0 +1,59 @@
+@namespace MoXia.Rcl.Components
+@inherits DialogComponentBase
+
+<CustomMDialog MyValue="Visible"
+               MyValueChanged="InternalVisibleChanged"
+               ContentClass="rounded-lg"
+               MaxWidth="420"
+               OnBeforeShowContent="BeforeShowAddTable"
+               DisableAutoFocus
+               OnMousedownPreventDefault
+               OnOutsideClick="HandleOnOutsideClick">
+    <MCard>
+        <MCardTitle Class="font-weight-bold flex-nowrap">
+            <wc-auto-scroll-text>@I18n.T("Add table")</wc-auto-scroll-text>
+            <MSpacer></MSpacer>
+            <MButton Icon
+                     OnClick="HandleOnCancel">
+                <MIcon>close</MIcon>
+            </MButton>
+        </MCardTitle>
+        <MCardText Class="pb-0">
+            <MRow>
+                <MCol Cols="6">
+                    <MTextField @bind-Value="rows"
+                                Type="number"
+                                Dense
+                                Autofocus
+                                HideDetails="@("auto")"
+                                spellcheck="false"
+                                NumberProps="@(prop => { prop.Min = minRows; })"
+                                Label="@(I18n.T("Row"))">
+                    </MTextField>
+                </MCol>
+                <MCol Cols="6">
+                    <MTextField @bind-Value="cols"
+                                Type="number"
+                                Dense
+                                HideDetails="@("auto")"
+                                spellcheck="false"
+                                NumberProps="@(prop => { prop.Min = minCols; })"
+                                Label="@(I18n.T("Col"))">
+                    </MTextField>
+                </MCol>
+            </MRow>
+        </MCardText>
+        <MCardActions>
+            <MSpacer></MSpacer>
+            <MButton Text
+                     OnClick="HandleOnCancel">
+                @(I18n.T("Cancel"))
+            </MButton>
+            <MButton Text
+                     Color="primary"
+                     OnClick="HandleOnOK">
+                @(I18n.T("OK"))
+            </MButton>
+        </MCardActions>
+    </MCard>
+</CustomMDialog>

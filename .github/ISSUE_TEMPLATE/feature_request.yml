@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for your interest in Swashbuckler Diary! We welcome any and all ideas for features or improvements that you might have.
+        Thank you for your interest in Mo Xia! We welcome any and all ideas for features or improvements that you might have.
   - type: textarea
     id: description
     attributes:

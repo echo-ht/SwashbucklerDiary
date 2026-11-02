@@ -1,0 +1,56 @@
+@namespace MoXia.Rcl.Components
+@using MoXia.Rcl.Events
+@using System.Globalization
+@inherits MediaResourceComponentBase
+
+<MCard @oncontextmenu="OpenMenu"
+       @attributes="activatorAttributes"
+       Elevation="0"
+       Ripple="false"
+       Rounded="@("lg")"
+       __internal_preventDefault_oncontextmenu>
+    <MList Class="rounded-lg">
+        <MListItem>
+            <MListItemAvatar Size="75" Tile Rounded="@("lg")">
+                <img class="rounded-lg" src="@AlbumCoverSrc" />
+                <MButton Style="position:absolute;"
+                         Icon="true"
+                         OnClick="PlayOrPause">
+                    <MIcon Color="white">
+                        @(isPlaying ? "pause-fill" : "play_arrow-fill")
+                    </MIcon>
+                </MButton>
+            </MListItemAvatar>
+
+            <MListItemContent>
+                <MListItemTitle Class="font-weight-bold mb-2">@Title</MListItemTitle>
+
+                <MListItemSubtitle Class="text-subtitle-2">@Artists</MListItemSubtitle>
+
+                <audio @ref="audioElementRef"
+                       src="@mediaResourcePath?.DisPlayedUrl"
+                       @oncustomdurationchange="@HandleOnDurationChange"
+                       @oncustomtimeupdate="@HandleOnTimeUpdate"
+                       @oncustomplaybackratechange="@HandleOnPlaybackRateChange"
+                       @onplay="@HandleOnPlay"
+                       @onpause="@HandleOnPause" />
+
+                <div class="player-duration-bar">
+                    <span class="text--secondary">@(TimeSpan.FromSeconds(CurrentTime).ToDurationString())</span>
+
+                    <input type="range"
+                           class="swiper-no-swiping"
+                           min="0"
+                           max="@(duration.ToString("0.00", CultureInfo.InvariantCulture))"
+                           step="1"
+                           value="@(CurrentTime.ToString("0.00", CultureInfo.InvariantCulture) ?? "0")"
+                           @oninput="OnInputCurrentTime"
+                           @onchange="OnChangeCurrentTime"
+                           style="@InputStyle" />
+
+                    <span class="text--secondary">@(TimeSpan.FromSeconds(duration).ToDurationString())</span>
+                </div>
+            </MListItemContent>
+        </MListItem>
+    </MList>
+</MCard>

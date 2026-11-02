@@ -1,0 +1,13 @@
+@page "/user-agreement"
+@namespace MoXia.Rcl.Pages
+@inherits ImportantComponentBase
+
+<MyAppBar Title="@(I18n.T("User agreement"))"
+          OnClick="NavigateToBack">
+</MyAppBar>
+
+<ScrollContainer>
+    <SimpleMarkdownPreview Value="@content"
+                           Class="user-select">
+    </SimpleMarkdownPreview>
+</ScrollContainer>

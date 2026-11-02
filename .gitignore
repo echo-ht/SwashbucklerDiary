@@ -360,4 +360,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/src/SwashbucklerDiary.Maui/myapp.keystore
+*.keystore

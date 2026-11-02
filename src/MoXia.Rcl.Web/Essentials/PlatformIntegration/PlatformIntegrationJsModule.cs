@@ -1,0 +1,52 @@
+using Masa.Blazor.JSInterop;
+using Microsoft.JSInterop;
+
+namespace MoXia.Rcl.Web.Essentials
+{
+    public abstract class PlatformIntegrationJSModule : JSModule
+    {
+        public PlatformIntegrationJSModule(IJSRuntime js, string moduleUrl) : base(js, moduleUrl)
+        {
+        }
+
+        public ValueTask<bool> OpenUri(string uri)
+        {
+            return InvokeAsync<bool>("openUri", uri);
+        }
+
+        public ValueTask SetClipboard(string text)
+        {
+            return InvokeVoidAsync("setClipboard", text);
+        }
+
+        public ValueTask<bool> ShareTextAsync(string title, string text)
+        {
+            return InvokeAsync<bool>("shareText", title, text);
+        }
+
+        public ValueTask<bool> ShareFileAsync(string title, string path, string fileName, string mimeType)
+        {
+            return InvokeAsync<bool>("shareFile", title, path, fileName, mimeType);
+        }
+
+        public ValueTask SaveFileAsync(string fileName, string filePath)
+        {
+            return InvokeVoidAsync("downloadFile", fileName, filePath);
+        }
+
+        public abstract ValueTask<string[]?> PickFilesAsync(
+            string accept,
+            string[] fileExtensions,
+            bool multiple = true);
+
+        public ValueTask<bool> IsBiometricSupported()
+        {
+            return InvokeAsync<bool>("isBiometricSupported");
+        }
+
+        public ValueTask<bool> BiometricAuthenticateAsync()
+        {
+            return InvokeAsync<bool>("biometricAuthenticateAsync");
+        }
+    }
+}

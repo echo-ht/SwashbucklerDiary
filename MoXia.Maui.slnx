@@ -1,0 +1,9 @@
+<Solution>
+	<Project Path="src/MoXia.Control/MoXia.Control.csproj" />
+	<Project Path="src/MoXia.Maui/MoXia.Maui.csproj">
+		<Deploy />
+	</Project>
+	<Project Path="src/MoXia.Rcl.Hybird/MoXia.Rcl.Hybird.csproj" />
+	<Project Path="src/MoXia.Rcl/MoXia.Rcl.csproj" />
+	<Project Path="src/MoXia.Shared/MoXia.Shared.csproj" />
+</Solution>

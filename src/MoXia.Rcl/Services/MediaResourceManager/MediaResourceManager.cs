@@ -1,0 +1,433 @@
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+using MoXia.Rcl.Essentials;
+using MoXia.Rcl.Models;
+using MoXia.Shared;
+using System.Text.RegularExpressions;
+
+namespace MoXia.Rcl.Services
+{
+    public abstract class MediaResourceManager : IMediaResourceManager
+    {
+        protected readonly IPlatformIntegration _platformIntegration;
+
+        protected readonly IAppFileSystem _appFileSystem;
+
+        protected readonly II18nService _i18n;
+
+        protected readonly ISettingService _settingService;
+
+        protected readonly ILogger _logger;
+
+        protected static readonly MediaResource[] _mediaResources =
+        [
+            MediaResource.Image,
+            MediaResource.Audio,
+            MediaResource.Video,
+        ];
+
+        protected Dictionary<string, string> routeFilePathMap;
+
+        public Dictionary<MediaResource, string> MediaResourceDirectoryPaths { get; } = [];
+
+        public virtual string? MarkdownLinkBase => "";
+
+        public string AssetsDirectoryPath { get; }
+
+        public MediaResourceManager(IPlatformIntegration mauiPlatformService,
+            IAppFileSystem appFileSystem,
+            II18nService i18nService,
+            ISettingService settingService,
+            ILogger<MediaResourceManager> logger)
+        {
+            _platformIntegration = mauiPlatformService;
+            _appFileSystem = appFileSystem;
+            _i18n = i18nService;
+            _settingService = settingService;
+            _logger = logger;
+
+            AssetsDirectoryPath = Path.Combine(_appFileSystem.AppDataDirectory, "Assets");
+            if (!Directory.Exists(AssetsDirectoryPath))
+            {
+                Directory.CreateDirectory(AssetsDirectoryPath);
+            }
+
+            foreach (var item in _mediaResources)
+            {
+                MediaResourceDirectoryPaths[item] = Path.Combine(AssetsDirectoryPath, item.ToString());
+            }
+
+            routeFilePathMap = new()
+            {
+                { $"/{AppFileSystem.AppDataVirtualDirectoryName}", AssetsDirectoryPath },
+                { $"/{AppFileSystem.CacheVirtualDirectoryName}", appFileSystem.CacheDirectory },
+            };
+        }
+
+        public async Task<ResourceModel?> AddAudioAsync()
+        {
+            string? filePath = await _platformIntegration.PickAudioAsync().ConfigureAwait(false);
+            return await AddMediaFileAsync(filePath).ConfigureAwait(false);
+        }
+
+        public async Task<ResourceModel?> AddImageAsync()
+        {
+            string? filePath = await _platformIntegration.PickPhotoAsync().ConfigureAwait(false);
+            return await AddMediaFileAsync(filePath).ConfigureAwait(false);
+        }
+
+        public async Task<ResourceModel?> AddVideoAsync()
+        {
+            string? filePath = await _platformIntegration.PickVideoAsync().ConfigureAwait(false);
+            return await AddMediaFileAsync(filePath).ConfigureAwait(false);
+        }
+
+        private async Task<ResourceModel?> AddMediaFileAsync(string? filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                return null;
+            }
+
+            var kind = GetResourceKind(filePath);
+            if (kind == MediaResource.Unknown)
+            {
+                return null;
+            }
+
+            string? uri = await CreateMediaResourceFileAsync(kind, filePath).ConfigureAwait(false);
+            if (string.IsNullOrEmpty(uri))
+            {
+                return null;
+            }
+
+            return new()
+            {
+                ResourceUri = uri,
+                ResourceType = kind
+            };
+        }
+
+        protected Task<string?> CreateMediaResourceFileAsync(MediaResource mediaResource, string? sourceFilePath)
+        {
+            var targetDirectoryPath = MediaResourceDirectoryPaths[mediaResource];
+            return CreateMediaResourceFileAsync(targetDirectoryPath, sourceFilePath);
+        }
+
+        public async Task<string?> CreateMediaResourceFileAsync(string targetDirectoryPath, string? sourceFilePath)
+        {
+            if (string.IsNullOrEmpty(sourceFilePath))
+            {
+                return null;
+            }
+
+            bool useOriginalFileName = _settingService.Get(it => it.OriginalFileName);
+
+            string targetFilePath;
+            if (useOriginalFileName)
+            {
+                var fn = Path.GetFileName(sourceFilePath);
+                string folderName = Guid.NewGuid().ToString("N");
+                targetFilePath = Path.Combine(targetDirectoryPath, folderName, fn);
+            }
+            else
+            {
+                await using var stream = new FileStream(sourceFilePath, FileMode.Open, FileAccess.Read, FileShare.Read,
+                        bufferSize: 1024 * 1024, useAsync: true);
+                string sha256 = await stream.CreateSHA256Async().ConfigureAwait(false);
+                var fn = sha256 + Path.GetExtension(sourceFilePath);
+                targetFilePath = Path.Combine(targetDirectoryPath, fn);
+            }
+
+            if (useOriginalFileName || !File.Exists(targetFilePath))
+            {
+                if (sourceFilePath.StartsWith(_appFileSystem.CacheDirectory))
+                {
+                    await Task.Run(() => _appFileSystem.FileMove(sourceFilePath, targetFilePath)).ConfigureAwait(false);
+                }
+                else
+                {
+                    await _appFileSystem.CopyFileAsync(sourceFilePath, targetFilePath).ConfigureAwait(false);
+                }
+
+                await _appFileSystem.SyncFS().ConfigureAwait(false);
+            }
+
+            return FilePathToRelativeUrl(targetFilePath);
+        }
+
+        public List<ResourceModel> GetDiaryResources(string content)
+        {
+            var resourceUris = new HashSet<string>();
+            var resources = new List<ResourceModel>();
+            string pattern = @$"(?<=\(|"")({customPathPrefix}.+?\.\S+?)(?=\)|"")";
+
+            foreach (Match match in Regex.Matches(content, pattern))
+            {
+                string path = GetPathOnly(match.Value).TrimStart('/');
+                if (path == string.Empty)
+                {
+                    continue;
+                }
+
+                if (resourceUris.Add(path))
+                {
+                    resources.Add(new()
+                    {
+                        ResourceType = GetResourceKind(path),
+                        ResourceUri = path,
+                    });
+                }
+            }
+
+            return resources;
+        }
+
+        static string GetPathOnly(string url, string baseUrl = "http://localhost")
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return string.Empty;
+
+            try
+            {
+                // 创建绝对 URI（即使输入是相对 URL 也能正常解析）
+                var uri = new Uri(new Uri(baseUrl), url);
+                return uri.AbsolutePath;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public MediaResource GetResourceKind(string uri)
+        {
+            var mime = StaticContentProvider.GetResponseContentTypeOrDefault(uri);
+            var type = mime.Split('/')[0];
+
+            return type switch
+            {
+                "image" => MediaResource.Image,
+                "audio" => MediaResource.Audio,
+                "video" => MediaResource.Video,
+                _ => MediaResource.Unknown
+            };
+        }
+
+        public async Task<AudioFileInfo> GetAudioFileInfo(string uri)
+        {
+            string? filePath = RelativeUrlToFilePath(uri);
+            if (!File.Exists(filePath))
+            {
+                return new();
+            }
+
+            try
+            {
+                var audioFile = TagLib.File.Create(filePath);
+                string? pictureUri = null;
+                if (audioFile.Tag.Pictures.Length > 0)
+                {
+                    string fileName = Path.GetFileName(filePath);
+                    var picture = audioFile.Tag.Pictures[0];
+                    string extension = StaticContentProvider.GetResponseExtensionOrDefault(picture.MimeType);
+                    string pictureFileName = $"{fileName}{extension}";
+                    pictureUri = await GetAudioFilePicturePath(pictureFileName, picture.Data.Data).ConfigureAwait(false);
+                }
+
+                return new()
+                {
+                    Title = audioFile.Tag.Title,
+                    Artists = audioFile.Tag.Performers,
+                    Album = audioFile.Tag.Album,
+                    Duration = audioFile.Properties.Duration,
+                    PictureUri = pictureUri
+                };
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "TagLib create file fail");
+                return new();
+            }
+        }
+
+        public abstract Task<string?> ToFilePathAsync(MediaResourcePath? mediaResourcePath);
+
+        protected async Task<string?> GetAudioFilePicturePath(string fileName, byte[] data)
+        {
+            string dir = Path.Combine(_appFileSystem.CacheDirectory, "AlbumCover");
+            Directory.CreateDirectory(dir);
+
+            string filePath = Path.Combine(dir, fileName);
+            if (!File.Exists(filePath))
+            {
+                await File.WriteAllBytesAsync(filePath, data).ConfigureAwait(false);
+                await _appFileSystem.SyncFS().ConfigureAwait(false);
+            }
+
+            var relativePath = FilePathToRelativeUrl(filePath);
+            return relativePath;
+        }
+
+        public async Task<IEnumerable<ResourceModel>?> AddMediaFilesAsync(IEnumerable<string?>? filePaths)
+        {
+            if (filePaths is null)
+            {
+                return null;
+            }
+
+            List<ResourceModel> resources = [];
+            foreach (var filePath in filePaths)
+            {
+                var resource = await AddMediaFileAsync(filePath).ConfigureAwait(false);
+
+                if (resource is null)
+                {
+                    continue;
+                }
+
+                resources.Add(resource);
+            }
+
+            return resources;
+        }
+
+        // 将真实的文件路径转化为 URL 相对路径
+        public string FilePathToRelativeUrl(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return string.Empty;
+            }
+
+            // 查找匹配的最长路径前缀
+            var match = routeFilePathMap
+                .Where(pair => filePath.StartsWith(pair.Value, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(pair => pair.Value.Length)
+                .FirstOrDefault();
+
+            if (match.Equals(default(KeyValuePair<string, string>)))
+            {
+                return string.Empty;
+            }
+
+            // 获取相对路径部分并转换分隔符
+            var relativePath = filePath.Substring(match.Value.Length)
+                .TrimStart(Path.DirectorySeparatorChar)
+                .Replace(Path.DirectorySeparatorChar, '/');
+
+            // 组合URL并确保不以/开头
+            return $"{match.Key.TrimStart('/')}/{relativePath}".TrimEnd('/');
+        }
+
+        // 将相对URL转换为文件路径
+        public string RelativeUrlToFilePath(string relativeUrl)
+        {
+            if (string.IsNullOrEmpty(relativeUrl))
+            {
+                return string.Empty;
+            }
+
+            // 标准化URL输入
+            var normalizedUrl = $"{Uri.UnescapeDataString(relativeUrl).Trim('/')}";
+
+            // 查找匹配的最长路由前缀
+            var match = routeFilePathMap
+                .Where(pair => normalizedUrl.StartsWith($"{pair.Key.TrimStart('/')}/", StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(pair => pair.Key.Length)
+                .FirstOrDefault();
+
+            if (match.Equals(default(KeyValuePair<string, string>)))
+            {
+                return string.Empty;
+            }
+
+            // 获取URL剩余部分并转换分隔符
+            var remainingPath = normalizedUrl.Substring(match.Key.Length)
+                .TrimStart('/')
+                .Replace('/', Path.DirectorySeparatorChar);
+
+            // 组合文件路径
+            return Path.Combine(match.Value, remainingPath);
+        }
+
+        public async Task<IEnumerable<ResourceModel>?> AddMultipleImageAsync()
+        {
+            var filePaths = await _platformIntegration.PickMultiplePhotoAsync().ConfigureAwait(false);
+            return await AddMediaFilesAsync(filePaths).ConfigureAwait(false);
+        }
+
+        public async Task<IEnumerable<ResourceModel>?> AddMultipleAudioAsync()
+        {
+            var filePaths = await _platformIntegration.PickMultipleAudioAsync().ConfigureAwait(false);
+            return await AddMediaFilesAsync(filePaths).ConfigureAwait(false);
+        }
+
+        public async Task<IEnumerable<ResourceModel>?> AddMultipleVideoAsync()
+        {
+            var filePaths = await _platformIntegration.PickMultipleVideoAsync().ConfigureAwait(false);
+            return await AddMediaFilesAsync(filePaths).ConfigureAwait(false);
+        }
+
+        public async Task<string?> CreateMediaFilesInsertContentAsync(List<string?> filePaths)
+        {
+            var resources = await AddMediaFilesAsync(filePaths).ConfigureAwait(false);
+            return CreateMediaFilesInsertContent(resources);
+        }
+
+        public string? CreateMediaFilesInsertContent(IEnumerable<ResourceModel>? resources)
+        {
+            if (resources is null) return null;
+            var insertContents = resources.Select(it => CreateMediaFileInsertContent(it.ResourceUri!, it.ResourceType));
+            if (insertContents is null || !insertContents.Any()) return null;
+            return $"{string.Join("\n", insertContents)}\n\n";
+        }
+
+        protected static readonly string customPathPrefix = $"{AppFileSystem.AppDataVirtualDirectoryName}/";
+
+        protected static string? CreateMediaFileInsertContent(string src, MediaResource mediaResource)
+        {
+            return mediaResource switch
+            {
+                MediaResource.Image => $"![]({src})",
+                MediaResource.Audio => $"<audio src=\"{src}\" controls ></audio>",
+                MediaResource.Video => $"<video src=\"{src}\" controls ></video>",
+                _ => null
+            };
+        }
+
+        public virtual string? ReplaceDisplayedUrlToRelativeUrl(string? content) => content;
+
+        protected virtual string? RelativeUrlToDisplayedUrl(string? content) => content;
+
+        public MediaResourcePath? ToMediaResourcePath(NavigationManager navigationManager, string? url)
+        {
+            url = ReplaceDisplayedUrlToRelativeUrl(url);
+
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                return null;
+            }
+
+            var absoluteUri = navigationManager.ToAbsoluteUri(url).ToString();
+            string? relativePath;
+
+            try
+            {
+                relativePath = navigationManager.ToBaseRelativePath(absoluteUri);
+            }
+            catch (ArgumentException) // 捕获特定异常
+            {
+                relativePath = null; // 或设置降级值，如 url（原始URL）
+            }
+
+            return new MediaResourcePath
+            {
+                Url = absoluteUri,
+                RelativePathOfBaseUri = relativePath,
+                DisPlayedUrl = string.IsNullOrEmpty(relativePath) ? absoluteUri : RelativeUrlToDisplayedUrl(relativePath)
+            };
+        }
+    }
+}
+

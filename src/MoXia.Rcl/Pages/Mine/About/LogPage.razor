@@ -1,0 +1,98 @@
+@page "/log"
+@namespace MoXia.Rcl.Pages
+@inherits ImportantComponentBase
+
+<MyAppBar>
+    <MButton Icon="true"
+             OnClick="NavigateToBack">
+        <MIcon>
+            arrow_back
+        </MIcon>
+    </MButton>
+
+    @if (!showSearch)
+    {
+        <MToolbarTitle Class="font-weight-bold flex-grow-1">
+            <wc-auto-scroll-text>@(I18n.T("Log file"))</wc-auto-scroll-text>
+        </MToolbarTitle>
+    }
+
+    <VisibleTextField @bind-Visible="showSearch"
+                      @bind-Value="search"
+                      OnInput="UpdateLogsAsync">
+    </VisibleTextField>
+
+    <MButton Icon="true"
+             OnClick="()=>showSearch=!showSearch">
+        <MIcon>
+            search
+        </MIcon>
+    </MButton>
+
+    <MButton Icon="true"
+             OnClick="()=>showFilter=!showFilter">
+        <MIcon>
+            @(IsDateFiltered ? "mdi:mdi-filter-check-outline" : "mdi:mdi-filter-outline")
+        </MIcon>
+    </MButton>
+
+    <MultiSizeMenu @bind-Visible="showMenu"
+               DynamicListItems="menuItems">
+        <ActivatorContent>
+            <MButton @attributes="@context.Attrs"
+                     Icon="true">
+                <MultiSizeDisplay>
+                    <DesktopContent>
+                        <MIcon>more_horiz</MIcon>
+                    </DesktopContent>
+                    <MobileContent>
+                        <MIcon>more_vert</MIcon>
+                    </MobileContent>
+                </MultiSizeDisplay>
+            </MButton>
+        </ActivatorContent>
+    </MultiSizeMenu>
+</MyAppBar>
+
+<ScrollContainer>
+    <div class="px-4 text-subtitle-1 user-select" style="word-wrap:break-word;">
+        <Virtualize Items="logs"
+                    ItemSize="150"
+                    Context="item"
+                    OverscanCount="30">
+            <div @key="item.Id">
+                <div class="mb-4 font-weight-bold">
+                    <span>@item.Timestamp</span>
+                    <span>[@item.LevelName]</span>
+                </div>
+                <div class="mb-10">
+                    @item.Message
+                    <br />
+                    @item.Exception
+                </div>
+            </div>
+        </Virtualize>
+    </div>
+
+    <EmptyResult Show="!logs.Any()"
+                 Text="@(IsSearchFiltered ? null:I18n.T("No logs"))">
+    </EmptyResult>
+
+</ScrollContainer>
+
+<DateFilterDialog @bind-Visible="showFilter"
+                  @bind-Value="dateFilterForm"
+                  OnOK="UpdateLogsAsync"
+                  OnReset="UpdateLogsAsync">
+</DateFilterDialog>
+
+<DeleteDialog @bind-Visible="showDelete"
+              Title="@(I18n.T("Clear logs"))"
+              Content="@(I18n.T("Are you sure you want to clear all the logs?"))"
+              OnOK="HandleDelete">
+</DeleteDialog>
+
+<MultiSizeListDialog @bind-Visible="showShare"
+                 Title="@(I18n.T("Choose how to Share"))"
+                 DynamicListItems="shareItems">
+</MultiSizeListDialog>

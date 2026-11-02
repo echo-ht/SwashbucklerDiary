@@ -1,0 +1,61 @@
+@namespace MoXia.Rcl.Components
+@inherits CardListComponentBase<LocationModel>
+
+<div class="card-list__wrap">
+    <div class="card-list__content">
+        <Virtualize Items="InternalValue"
+                    ItemSize="60"
+                    Context="item"
+                    OverscanCount="30">
+            <LocationCard @key="item.Id"
+                          Value="item"
+                          OnMenu="OpenMenu">
+            </LocationCard>
+        </Virtualize>
+    </div>
+
+    @if (ShowStatisticsCard)
+    {
+        <MultiSizeDisplay MdAndUp="true">
+            <DesktopContent>
+                <div class="card-list__sidebar">
+                    <LocationStatisticsCard Value="Value">
+                    </LocationStatisticsCard>
+                </div>
+            </DesktopContent>
+        </MultiSizeDisplay>
+    }
+</div>
+
+<EmptyResult Show="Value.Count == 0"
+             Text="@(I18n.T("No location"))">
+</EmptyResult>
+
+<InputDialog @bind-Visible="showRename"
+             Text="@(SelectedItem.Name)"
+             Title="@(I18n.T("Rename location"))"
+             Placeholder="@(I18n.T("Please enter a location name"))"
+             MaxLength="200"
+             OnOK="ConfirmRename">
+</InputDialog>
+
+<DeleteDialog @bind-Visible="showDelete"
+              Title="@(I18n.T("Delete location"))"
+              Content="@(I18n.T("Only the location is deleted, the location of the existing diary is not deleted"))"
+              OnOK="ConfirmDelete">
+</DeleteDialog>
+
+<RadioDialog @bind-Value="SortItem"
+             @bind-Visible="showSort"
+             OnChange="SortChanged"
+             TItem="string"
+             TItemValue="string"
+             Title="@(I18n.T("Sort"))"
+             Items="SortItems" 
+             ItemText="it => I18n.TForOrder(it)">
+</RadioDialog>
+
+<MultiSizeMenu @bind-Visible="showMenu"
+           DynamicListItems="menuItems"
+           ActivatorAttributes="menuActivatorAttributes">
+</MultiSizeMenu>

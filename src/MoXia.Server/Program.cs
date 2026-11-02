@@ -1,0 +1,64 @@
+using Blazored.LocalStorage;
+using MoXia.Control;
+using MoXia.Control.Extensions;
+using MoXia.Rcl.Extensions;
+using MoXia.Server;
+using MoXia.Server.Extensions;
+using MoXia.Server.Middleware;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+// add support for web api
+builder.Services.AddControllers();
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddBlazoredLocalStorage();
+
+builder.Services.AddMasaBlazorConfig();
+
+builder.Services.AddSqlSugarConfig(SQLiteConstants.ConnectionString, SQLiteConstants.PrivacyConnectionString, SQLiteConstants.LogConnectionString, ServiceLifetime.Scoped);
+
+builder.Services.AddSerilogConfig(SQLiteConstants.LogDatabasePath);
+
+builder.Services.AddDependencyInjection();
+builder.Services.AddMcpControl();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+app.UseHttpsRedirection();
+
+app.UseMiddleware<StartPathMiddleware>();
+app.UseMiddleware<ApiAuthValidationMiddleware>();
+
+app.UseAntiforgery();
+
+app.MapStaticAssets();
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode()
+    .AddAdditionalAssemblies([.. Routes.AdditionalAssemblies]);
+// add support for web api
+app.MapControllers();
+
+var mcpControl = app.Services.GetRequiredService<McpControlServer>();
+await mcpControl.StartAsync();
+try
+{
+    await app.RunAsync();
+}
+finally
+{
+    await mcpControl.StopAsync();
+}

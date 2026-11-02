@@ -1,0 +1,99 @@
+using Microsoft.Data.SqlClient;
+using MoXia.Rcl.Essentials;
+using MoXia.Rcl.Pages;
+using MoXia.Rcl.Services;
+using MoXia.Shared;
+using System.Text.Json;
+
+namespace MoXia.Maui.Services
+{
+    public class VersionUpdataManager : Rcl.Services.VersionUpdataManager
+    {
+        public VersionUpdataManager(IDiaryService diaryService,
+            IResourceService resourceService,
+            ISettingService settingService,
+            IMediaResourceManager mediaResourceManager,
+            II18nService i18n,
+            Rcl.Essentials.IVersionTracking versionTracking,
+            IDiaryFileManager diaryFileManager,
+            IStaticWebAssets staticWebAssets,
+            IAppFileSystem appFileSystem,
+            IAvatarService avatarService) :
+            base(diaryService, resourceService, settingService, mediaResourceManager, i18n, versionTracking, diaryFileManager, staticWebAssets, appFileSystem, avatarService)
+        {
+        }
+
+        protected override void InitializeVersionHandlers()
+        {
+            base.InitializeVersionHandlers();
+
+            AddVersionHandler("0.65.5", HandleVersionUpdate655);
+        }
+
+        //此版本之后更改了资源的链接
+        private async Task HandleVersionUpdate655()
+        {
+            var key = "Avatar";
+            string avatar = await _settingService.GetAsync<string>(key, string.Empty);
+            if (avatar != string.Empty)
+            {
+                avatar = avatar.Replace("appdata:///", "appdata/");
+                await _settingService.SetAsync(key, avatar);
+            }
+
+            await _diaryFileManager.AllUseNewResourceUriAsync();
+        }
+
+        protected override async Task HandleVersionUpdate697()
+        {
+            var webDAVServerAddress = await _settingService.GetAsync<string>("WebDAVServerAddress", string.Empty);
+            var webDAVAccount = await _settingService.GetAsync<string>("WebDAVAccount", string.Empty);
+            var webDAVPassword = await _settingService.GetAsync<string>("WebDAVPassword", string.Empty);
+
+            if (!string.IsNullOrEmpty(webDAVServerAddress))
+            {
+                var config = new WebDavConfigForm()
+                {
+                    ServerAddress = webDAVServerAddress,
+                    Account = webDAVAccount,
+                    Password = webDAVPassword,
+                };
+                string webDavConfigJson = JsonSerializer.Serialize(config);
+                await _settingService.SetAsync("WebDavConfig", webDavConfigJson);
+            }
+
+            string[] keys = ["ThemeState", "WebDAVServerAddress", "WebDAVAccount", "WebDAVPassword", "Date"];
+            await _settingService.RemoveAsync(keys);
+        }
+
+#if IOS || MACCATALYST
+        protected override async Task HandleVersionUpdate1291()
+        {
+            Dictionary<string, string> directoryPaths = new()
+            {
+                ["Image"] = _mediaResourceManager.MediaResourceDirectoryPaths[MediaResource.Image],
+                ["Video"] = _mediaResourceManager.MediaResourceDirectoryPaths[MediaResource.Video],
+                ["Avatar"] = _avatarService.AvatarDirectoryPath,
+            };
+            foreach (var item in directoryPaths)
+            {
+                var oldPath = Path.Combine(FileSystem.AppDataDirectory, item.Key.ToString());
+                if (Directory.Exists(oldPath))
+                {
+                    await _appFileSystem.MoveFolderAsync(oldPath, item.Value).ConfigureAwait(false);
+                }
+            }
+
+            SqlConnection.ClearAllPools();
+            var oldDatabasePath = Path.Combine(FileSystem.AppDataDirectory, SQLiteConstants.MainDatabaseFilename);
+            await _appFileSystem.CopyFileAsync(oldDatabasePath, SQLiteConstants.DatabasePath).ConfigureAwait(false);
+            File.Delete(oldDatabasePath);
+            var oldPrivacyDatabasePath = Path.Combine(FileSystem.AppDataDirectory, SQLiteConstants.PrivacyDatabaseFilename);
+            await _appFileSystem.CopyFileAsync(oldPrivacyDatabasePath, SQLiteConstants.PrivacyDatabasePath).ConfigureAwait(false);
+            File.Delete(oldPrivacyDatabasePath);
+
+            await base.HandleVersionUpdate1291();
+        }
+#endif
+    }
+}

@@ -1,0 +1,39 @@
+﻿@inherits UpdateDialogBase
+
+@base.BuildRenderTree
+
+<CustomMDialog @bind-MyValue="showUpdateMethodDialog"
+               ContentClass="rounded-lg"
+               MaxWidth="420"
+               Scrollable>
+    <MCard Class="rounded-t-lg">
+        <MCardTitle Class="font-weight-bold flex-nowrap">
+            <wc-auto-scroll-text>@(I18n.T("Update method"))</wc-auto-scroll-text>
+            <MSpacer></MSpacer>
+            <MButton Icon="true"
+                     OnClick="HandleOnCancel">
+                <MIcon>close</MIcon>
+            </MButton>
+        </MCardTitle>
+        <MCardText Class="px-0 scroll-show">
+            <MList Class="py-0">
+                @foreach (var item in items)
+                {
+                    <MListItem Class="px-10"
+                               OnClick="@item.OnClick">
+                        <MListItemIcon>
+                            <MIcon>
+                                @(item.Icon)
+                            </MIcon>
+                        </MListItemIcon>
+                        <MListItemContent>
+                            <MListItemTitle>
+                                <wc-auto-scroll-text>@(I18n.T(item.Text))</wc-auto-scroll-text>
+                            </MListItemTitle>
+                        </MListItemContent>
+                    </MListItem>
+                }
+            </MList>
+        </MCardText>
+    </MCard>
+</CustomMDialog>

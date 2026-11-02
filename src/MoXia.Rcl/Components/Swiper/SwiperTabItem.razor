@@ -1,0 +1,10 @@
+﻿@namespace MoXia.Rcl.Components
+@using Masa.Blazor.Components.ItemGroup
+@inherits MGroupable<MItemGroupBase>
+
+<div id="@Id" class="@GetClass()" style="@GetStyle()" @attributes="@Attributes">
+    @if (IsBooted || IsEager)
+    {
+        @ComputedChildContent
+    }
+</div>

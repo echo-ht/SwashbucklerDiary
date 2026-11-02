@@ -1,0 +1,34 @@
+@namespace MoXia.Rcl.Pages
+@inherits ImportantComponentBase
+
+<MyAppBar>
+    <MButton Icon
+             OnClick="NavigateToBack">
+        <MIcon>
+            arrow_back
+        </MIcon>
+    </MButton>
+
+    <MyTabs @bind-Value="tab"
+            Items="tabListItems">
+    </MyTabs>
+
+    <MSpacer></MSpacer>
+</MyAppBar>
+
+<SwiperTabItems @bind-Value="tab">
+    <SwiperTabItem>
+        <MContainer Class="my-container"
+                    Fluid="true">
+            <LocalBackupsPage></LocalBackupsPage>
+        </MContainer>
+    </SwiperTabItem>
+    <SwiperTabItem>
+        <MContainer Class="my-container"
+                    Fluid="true">
+            <DynamicComponent Type="WebDAVBackupsPageType" />
+        </MContainer>
+    </SwiperTabItem>
+</SwiperTabItems>
+
+

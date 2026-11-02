@@ -1,0 +1,329 @@
+@page "/aiSetting"
+@namespace MoXia.Rcl.Pages
+@inherits ImportantComponentBase
+
+<MyAppBar Title="@(I18n.T("AI settings"))"
+          OnClick="NavigateToBack">
+</MyAppBar>
+
+<ScrollContainer Class="ai-settings-scroll" ContentClass="ai-settings-page">
+    <section class="ai-settings-hero">
+        <div class="ai-settings-hero__icon"><MIcon>tune</MIcon></div>
+        <div class="ai-settings-hero__copy">
+            <div class="ai-settings-eyebrow">@(I18n.T("OpenAI compatible"))</div>
+            <h1>@(I18n.T("Bring your own AI provider"))</h1>
+            <p>@(I18n.T("Connect DeepSeek, OpenAI, SiliconFlow, OpenRouter, Ollama or any compatible endpoint. Notes stay in your database; only retrieved excerpts are sent to the model."))</p>
+        </div>
+        <MButton Color="primary"
+                 Depressed
+                 Rounded
+                 Loading="isSaving"
+                 OnClick="SaveSettingsAsync">
+            <MIcon Class="me-2">save</MIcon>
+            @(I18n.T("Save"))
+        </MButton>
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(errorText))
+    {
+        <div class="ai-settings-alert is-error">
+            <MIcon>error_outline</MIcon>
+            <span>@errorText</span>
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(testResult))
+    {
+        <div class="ai-settings-alert is-success">
+            <MIcon>check_circle</MIcon>
+            <span>@testResult</span>
+        </div>
+    }
+
+    <div class="ai-settings-grid">
+        <section class="ai-settings-panel ai-settings-panel--wide">
+            <div class="ai-settings-panel__head">
+                <div>
+                    <span class="ai-settings-kicker">@(I18n.T("Connection"))</span>
+                    <h2>@(I18n.T("Chat provider"))</h2>
+                </div>
+                <span class="ai-provider-badge">@(I18n.T("OpenAI API format"))</span>
+            </div>
+
+            <div class="ai-provider-presets">
+                <span>@(I18n.T("Presets"))</span>
+                <button type="button" @onclick="ApplyDeepSeekPreset">DeepSeek</button>
+                <button type="button" @onclick="ApplyOpenAiPreset">OpenAI</button>
+                <button type="button" @onclick="ApplySiliconFlowPreset">SiliconFlow</button>
+                <button type="button" @onclick="ApplyOpenRouterPreset">OpenRouter</button>
+                <button type="button" @onclick="ApplyOllamaPreset">Ollama</button>
+            </div>
+
+            <div class="ai-field-grid">
+                <MTextField @bind-Value="baseUrl"
+                            Label="@(I18n.T("API base URL"))"
+                            Placeholder="https://api.deepseek.com/v1"
+                            Class="ai-field ai-field--full"
+                            Filled
+                            Rounded
+                            HideDetails="@("auto")"
+                            spellcheck="false">
+                    <PrependInnerContent>
+                        <MIcon>link</MIcon>
+                    </PrependInnerContent>
+                </MTextField>
+
+                <MTextField @bind-Value="apiKey"
+                            Label="@(I18n.T("API key"))"
+                            Placeholder="@(I18n.T("Optional for local providers"))"
+                            Type="@(showApiKey ? "text" : "password")"
+                            AppendIcon="@(showApiKey ? "visibility_off" : "visibility")"
+                            OnAppendClick="() => showApiKey = !showApiKey"
+                            Class="ai-field ai-field--full"
+                            Filled
+                            Rounded
+                            HideDetails="@("auto")"
+                            spellcheck="false">
+                    <PrependInnerContent>
+                        <MIcon>key</MIcon>
+                    </PrependInnerContent>
+                </MTextField>
+
+                <MTextField @bind-Value="chatModel"
+                            Label="@(I18n.T("Chat model"))"
+                            Placeholder="deepseek-chat"
+                            Class="ai-field"
+                            Filled
+                            Rounded
+                            HideDetails="@("auto")"
+                            spellcheck="false">
+                    <PrependInnerContent>
+                        <MIcon>smart_toy</MIcon>
+                    </PrependInnerContent>
+                </MTextField>
+
+                <MTextField @bind-Value="timeoutText"
+                            Label="@(I18n.T("Timeout (seconds)"))"
+                            Type="number"
+                            NumberProps="@(prop => { prop.Min = 10; prop.Max = 600; prop.Step = 1; prop.HideControl = true; })"
+                            Class="ai-field"
+                            Filled
+                            Rounded
+                            HideDetails="@("auto")">
+                    <PrependInnerContent>
+                        <MIcon>timer</MIcon>
+                    </PrependInnerContent>
+                </MTextField>
+            </div>
+
+            <div class="ai-settings-actions">
+                <MButton Text
+                         Rounded
+                         Loading="isTesting"
+                         Disabled="isTesting"
+                         OnClick="TestConnectionAsync">
+                    <MIcon Class="me-2">wifi_tethering</MIcon>
+                    @(I18n.T("Save and test"))
+                </MButton>
+                <span>@(I18n.T("DeepSeek and most relay providers work with the /chat/completions and /embeddings format."))</span>
+            </div>
+        </section>
+
+        @if (SupportsMcpControl)
+        {
+            <section class="ai-settings-panel ai-settings-panel--wide">
+                <div class="ai-settings-panel__head">
+                    <div>
+                        <span class="ai-settings-kicker">@(I18n.T("Automation"))</span>
+                        <h2>@(I18n.T("MCP control"))</h2>
+                    </div>
+                    <MIcon Color="primary">hub</MIcon>
+                </div>
+
+                <div class="ai-security-grid">
+                    <div class="ai-toggle-row">
+                        <div>
+                            <strong>@(I18n.T("Enable MCP control"))</strong>
+                            <p>@(I18n.T("Allow local MCP clients to read, create, update, search and delete notes while MoXia is running."))</p>
+                        </div>
+                        <MSwitch @bind-Value="mcpEnabled" Color="primary"></MSwitch>
+                    </div>
+                    <div class="ai-toggle-row">
+                        <div>
+                            <strong>@(I18n.T("Allow MCP to access the private library"))</strong>
+                            <p>@(I18n.T("The private library stays hidden from MCP unless this switch is on. Every tool also requires library=private explicitly."))</p>
+                        </div>
+                        <MSwitch @bind-Value="mcpAllowPrivateLibrary" Color="primary"></MSwitch>
+                    </div>
+                </div>
+
+                <div class="mcp-command">
+                    <div>
+                        <span>@(I18n.T("MCP server command"))</span>
+                        <code>MoXia.Mcp</code>
+                    </div>
+                    <p>@(I18n.T("The control endpoint only listens on 127.0.0.1 and uses a temporary token. The MoXia app must be running; deletion is permanent."))</p>
+                </div>
+            </section>
+        }
+
+        <section class="ai-settings-panel">
+            <div class="ai-settings-panel__head">
+                <div>
+                    <span class="ai-settings-kicker">@(I18n.T("Retrieval"))</span>
+                    <h2>@(I18n.T("Vector search"))</h2>
+                </div>
+                <MIcon Color="primary">scatter_plot</MIcon>
+            </div>
+
+            <MTextField @bind-Value="embeddingBaseUrl"
+                        Label="@(I18n.T("Embedding base URL"))"
+                        Placeholder="@(I18n.T("Defaults to the chat base URL"))"
+                        Class="ai-field mb-3"
+                        Filled
+                        Rounded
+                        HideDetails="@("auto")"
+                        spellcheck="false">
+            </MTextField>
+
+            <MTextField @bind-Value="embeddingModel"
+                        Label="@(I18n.T("Embedding model"))"
+                        Placeholder="@(I18n.T("Leave empty for local hash vectors"))"
+                        Class="ai-field mb-3"
+                        Filled
+                        Rounded
+                        HideDetails="@("auto")"
+                        spellcheck="false">
+            </MTextField>
+
+            <div class="ai-field-grid">
+                <MTextField @bind-Value="topKText"
+                            Label="@(I18n.T("Top K"))"
+                            Type="number"
+                            NumberProps="@(prop => { prop.Min = 1; prop.Max = 20; prop.Step = 1; prop.HideControl = true; })"
+                            Class="ai-field"
+                            Filled
+                            Rounded
+                            HideDetails="@("auto")">
+                </MTextField>
+                <MTextField @bind-Value="temperatureText"
+                            Label="@(I18n.T("Temperature"))"
+                            Type="number"
+                            NumberProps="@(prop => { prop.Min = 0; prop.Max = 2; prop.Step = 0.1M; prop.HideControl = true; })"
+                            Class="ai-field"
+                            Filled
+                            Rounded
+                            HideDetails="@("auto")">
+                </MTextField>
+            </div>
+
+            <div class="ai-toggle-row">
+                <div>
+                    <strong>@(I18n.T("Local vector fallback"))</strong>
+                    <p>@(I18n.T("Use a deterministic 384-dimension local embedding when the provider has no embeddings endpoint."))</p>
+                </div>
+                <MSwitch @bind-Value="localEmbeddingFallback" Color="primary"></MSwitch>
+            </div>
+
+            <div class="ai-embedding-note">
+                <MIcon>info</MIcon>
+                <span>@(I18n.T("Changing the embedding model changes the vector space. Rebuild the index afterwards."))</span>
+            </div>
+        </section>
+
+        <section class="ai-settings-panel">
+            <div class="ai-settings-panel__head">
+                <div>
+                    <span class="ai-settings-kicker">@(I18n.T("Index"))</span>
+                    <h2>@(I18n.T("Knowledge base"))</h2>
+                </div>
+                <span class="ai-index-state @IndexStateClass">@IndexStateText</span>
+            </div>
+
+            <div class="ai-index-metrics">
+                <div><strong>@status.IndexedDiaryCount</strong><span>@(I18n.T("Notes"))</span></div>
+                <div><strong>@status.ChunkCount</strong><span>@(I18n.T("Chunks"))</span></div>
+                <div><strong>@(status.StaleChunkCount + status.UnindexedDiaryCount)</strong><span>@(I18n.T("Outdated"))</span></div>
+            </div>
+
+            <div class="ai-index-signature">
+                <span>@(I18n.T("Embedding signature"))</span>
+                <code>@(status.EmbeddingSignature ?? I18n.T("Not built"))</code>
+            </div>
+
+            @if (isIndexing)
+            {
+                <div class="ai-index-live">
+                    <div class="d-flex align-center justify-space-between">
+                        <span>@(I18n.T("Updating index"))</span>
+                        <span>@IndexProgressText</span>
+                    </div>
+                    <MProgressLinear Indeterminate="@(indexProgress is null)" Value="IndexProgressPercent" Color="primary" Height="6" Rounded></MProgressLinear>
+                </div>
+            }
+
+            <div class="ai-settings-actions ai-settings-actions--column">
+                <MButton Color="primary"
+                         Depressed
+                         Rounded
+                         Loading="isIndexing"
+                         Disabled="isIndexing"
+                         OnClick="RebuildIndexAsync">
+                    <MIcon Class="me-2">database</MIcon>
+                    @(status.ChunkCount == 0 ? I18n.T("Build index") : I18n.T("Rebuild index"))
+                </MButton>
+                <MButton Text
+                         Rounded
+                         Color="error"
+                         Disabled="@(isIndexing || status.ChunkCount == 0)"
+                         OnClick="() => showClearIndex = true">
+                    @(I18n.T("Clear index"))
+                </MButton>
+            </div>
+        </section>
+
+        <section class="ai-settings-panel ai-settings-panel--wide">
+            <div class="ai-settings-panel__head">
+                <div>
+                    <span class="ai-settings-kicker">@(I18n.T("Advanced"))</span>
+                    <h2>@(I18n.T("Extra headers and privacy"))</h2>
+                </div>
+                <MIcon>shield</MIcon>
+            </div>
+
+            <MTextarea @bind-Value="extraHeadersJson"
+                       Label="@(I18n.T("Extra request headers (JSON)"))"
+                       Placeholder='{"X-Title":"Mo Xia"}'
+                       Class="ai-field"
+                       Filled
+                       Rounded
+                       HideDetails="@("auto")"
+                       Rows="3"
+                       spellcheck="false">
+            </MTextarea>
+
+            <div class="ai-security-grid">
+                <div>
+                    <MIcon>lock</MIcon>
+                    <div>
+                        <strong>@(I18n.T("Local key storage"))</strong>
+                        <p>@(I18n.T("API keys are stored in this app's local preferences, not in a system keychain. Avoid using shared devices for sensitive keys."))</p>
+                    </div>
+                </div>
+                <div>
+                    <MIcon>cloud_upload</MIcon>
+                    <div>
+                        <strong>@(I18n.T("What leaves the device"))</strong>
+                        <p>@(I18n.T("Your question and the top matching note excerpts are sent to the configured AI provider. The full database is never uploaded."))</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</ScrollContainer>
+
+<DeleteDialog @bind-Visible="showClearIndex"
+              Title="@(I18n.T("Clear index"))"
+              Content="@(I18n.T("This removes all local AI vectors. Your notes will not be deleted."))"
+              OnOK="ClearIndexAsync">
+</DeleteDialog>

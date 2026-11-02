@@ -1,0 +1,14 @@
+﻿@namespace MoXia.Rcl.Components
+
+@if (!string.IsNullOrEmpty(Value))
+{
+    <MIcon Class="ms-2" Size="20">
+        @Value
+    </MIcon>
+}
+
+@code
+{
+    [Parameter]
+    public string? Value { get; set; }
+}

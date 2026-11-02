@@ -1,0 +1,23 @@
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+
+namespace MoXia.Rcl.Components
+{
+    public class BackTopButtonJSModule : CustomJSModule
+    {
+        public BackTopButtonJSModule(IJSRuntime js) : base(js, "Components/BackTopButton/BackTopButton.razor.js")
+        {
+        }
+
+        public async ValueTask<BackTopButtonJSObjectReference?> Init(string selector, ElementReference? element, DotNetObjectReference<object>? dotNetObject)
+        {
+            var jSObjectReference = await InvokeAsync<IJSObjectReference>("init", selector, element, dotNetObject);
+            if (jSObjectReference is null)
+            {
+                return null;
+            }
+
+            return new BackTopButtonJSObjectReference(jSObjectReference);
+        }
+    }
+}

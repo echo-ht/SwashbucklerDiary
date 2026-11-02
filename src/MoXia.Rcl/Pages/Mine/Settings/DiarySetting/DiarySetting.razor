@@ -1,0 +1,339 @@
+@page "/diarySetting"
+@namespace MoXia.Rcl.Pages
+@inherits ImportantComponentBase
+
+<MyAppBar Title="@(I18n.T("Diary"))"
+          OnClick="NavigateToBack">
+</MyAppBar>
+
+<ScrollContainer>
+    <MCard Class="mb-5"
+           Elevation="0"
+           Rounded="@("lg")">
+        <MList Class="py-0">
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        title
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Title"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="title"
+                                   SettingKey="@nameof(Setting.Title)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        markdown
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Markdown render"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="markdown"
+                                   SettingKey="@nameof(Setting.Markdown)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        info
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Other information"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="otherInfo"
+                                   SettingKey="@nameof(Setting.OtherInfo)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+        </MList>
+    </MCard>
+
+    <MCard Class="mb-5"
+           Elevation="0"
+           Rounded="@("lg")">
+        <MList Class="py-0">
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        mdi:mdi-alphabetical
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Weather and mood text"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="diaryIconText"
+                                   SettingKey="@nameof(Setting.DiaryIconText)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem OnClick="() => showEditAutoSave = true">
+                <MListItemIcon>
+                    <MIcon>
+                        save_as
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent Style="flex-basis:50%;">
+                    <wc-auto-scroll-text>@(I18n.T("Auto save"))</wc-auto-scroll-text>
+                </MListItemContent>
+
+                <MListItemContent Class="ms-2" Style="flex-basis:50%;">
+                    <MListItemSubtitle>
+                        <wc-auto-scroll-text class="justify-end" style="width:100%;">@EditAutoSaveText</wc-auto-scroll-text>
+                    </MListItemSubtitle>
+                </MListItemContent>
+
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem OnClick="@(() => showDiaryTimeFormat = true)">
+                <MListItemIcon>
+                    <MIcon>
+                        calendar_clock
+                    </MIcon>
+                </MListItemIcon>
+
+                <MListItemContent Style="flex-basis:50%;">
+                    <wc-auto-scroll-text>@(I18n.T("Time format"))</wc-auto-scroll-text>
+                </MListItemContent>
+
+                <MListItemContent Class="ms-2" Style="flex-basis:50%;">
+                    <MListItemSubtitle>
+                        <wc-auto-scroll-text class="justify-end" style="width:100%;">
+                            @(I18n.TForTimeFormat(DiaryTimeFormatKey))
+                        </wc-auto-scroll-text>
+                    </MListItemSubtitle>
+                </MListItemContent>
+                
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem OnClick="@(() => showDiaryInsertTimeFormat = true)">
+                <MListItemIcon>
+                    <MIcon>
+                        schedule
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Insert Time format"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+        </MList>
+    </MCard>
+
+    <MCard Class="mb-5"
+           Elevation="0"
+           Rounded="@("lg")">
+        <MList Class="py-0">
+            <MListItem OnClick="@(() => To("outlineSetting"))">
+                <MListItemIcon>
+                    <MIcon>
+                        format_list_bulleted
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Outline"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        format_indent_increase
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("First line indentation"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="firstLineIndent"
+                                   SettingKey="@nameof(Setting.FirstLineIndent)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        format_list_numbered
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Code line number"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="codeLineNumber"
+                                   SettingKey="@nameof(Setting.CodeLineNumber)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        mdi:mdi-checkbox-blank-off-outline
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Task list line-through"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="taskListLineThrough"
+                                   SettingKey="@nameof(Setting.TaskListLineThrough)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+        </MList>
+    </MCard>
+
+    <MCard Class="mb-5"
+           Elevation="0"
+           Rounded="@("lg")">
+        <MList Class="py-0">
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        mdi:mdi-image-refresh-outline
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Lazy image load"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="imageLazy"
+                                   SettingKey="@nameof(Setting.ImageLazy)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        play_arrow
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Audio and video auto play"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="autoPlay"
+                                   SettingKey="@nameof(Setting.AutoPlay)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        stack
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <MListItemTitle>
+                        <wc-auto-scroll-text>@(I18n.T("Link card"))</wc-auto-scroll-text>
+                    </MListItemTitle>
+                    <MListItemSubtitle>
+                        <wc-auto-scroll-text>@(I18n.T("Generate card style links for hyperlinks"))</wc-auto-scroll-text>
+                    </MListItemSubtitle>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="linkCard"
+                                   SettingKey="@nameof(Setting.LinkCard)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        raw_on
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <MListItemTitle>
+                        <wc-auto-scroll-text>@(I18n.T("Keep the original file name"))</wc-auto-scroll-text>
+                    </MListItemTitle>
+                    <MListItemSubtitle>
+                        <wc-auto-scroll-text>
+                            @(I18n.T("When adding files, use the original file name. The file of same Sha256 will no longer be saved as only one copy."))</wc-auto-scroll-text>
+                    </MListItemSubtitle>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="originalFileName"
+                                   SettingKey="@nameof(Setting.OriginalFileName)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+        </MList>
+    </MCard>
+</ScrollContainer>
+
+<SelectChipDialog @bind-Visible="showEditAutoSave"
+                  @bind-Value="@editAutoSave"
+                  @bind-Value:after="UpdateEditAutoSaveSetting"
+                  Title="@(I18n.T("Auto save"))"
+                  Items="editAutoSaveItems"
+                  Mandatory="true">
+</SelectChipDialog>
+
+<RadioDialog @bind-Value="diaryTimeFormat"
+             @bind-Visible="showDiaryTimeFormat"
+             Title="@(I18n.T("Time format"))"
+             TItemValue="string"
+             TItem="KeyValuePair<string, string>"
+             OnChange="UpdateDiaryTimeFormatSetting"
+             Items="diaryTimeFormats"
+             ItemText="it => I18n.TForTimeFormat(it.Key)">
+</RadioDialog>
+
+<DiaryInsertTimeFormatDialog @bind-Visible="showDiaryInsertTimeFormat"
+                             @bind-Value="@diaryInsertTimeFormat"
+                             @bind-Value:after="UpdateDiaryInsertTimeFormatSetting"
+                             OnReset="ResetDiaryInsertTimeFormatSetting">
+</DiaryInsertTimeFormatDialog>

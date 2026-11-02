@@ -1,0 +1,60 @@
+@namespace MoXia.Rcl.Pages
+@inherits ImportantComponentBase
+
+<MCard Class="mb-5"
+       Elevation="0"
+       Rounded="@("lg")">
+    <MList Class="py-0">
+        @foreach (var item in DynamicLists)
+        {
+            <MListItem @key="item" OnClick="item.OnClick">
+                <MListItemIcon>
+                    <MIcon>
+                        @item.Icon
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <MListItemTitle>
+                        <wc-auto-scroll-text>@(I18n.T(item.Text))</wc-auto-scroll-text>
+                    </MListItemTitle>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+
+            if (DynamicLists.Last() != item)
+            {
+                <MDivider Class="mx-5"></MDivider>
+            }
+        }
+    </MList>
+</MCard>
+
+<MCard Class="mb-5"
+       Elevation="0"
+       Rounded="@("lg")">
+    <MList Class="py-0">
+        <MListItem OnClick="()=>ShowConfig=true">
+            <MListItemIcon>
+                <MIcon>
+                    mdi:mdi-cog-transfer-outline
+                </MIcon>
+            </MListItemIcon>
+            <MListItemContent>
+                <MListItemTitle>
+                    <wc-auto-scroll-text>@(I18n.T("Setting"))</wc-auto-scroll-text>
+                </MListItemTitle>
+            </MListItemContent>
+            <MListItemAction>
+                <MIcon>chevron_right</MIcon>
+            </MListItemAction>
+        </MListItem>
+    </MList>
+</MCard>
+
+<LANConfigDialog @bind-Visible="ShowConfig"
+                 Form="configModel"
+                 OnOK="SaveConfig"
+                 OnReset="Reset">
+</LANConfigDialog>

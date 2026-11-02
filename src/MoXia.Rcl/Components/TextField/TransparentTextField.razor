@@ -1,0 +1,17 @@
+@namespace MoXia.Rcl.Components
+
+<CustomMTextField TValue="string"
+                  Value="@Value"
+                  ValueChanged="ValueChanged"
+                  OnInput="OnInput"
+                  Class="rounded-lg"
+                  BackgroundColor="transparent"
+                  Solo="true"
+                  Flat="true"
+                  Autofocus="Autofocus"
+                  Clearable="Clearable"
+                  HideDetails="@("auto")"
+                  Color="currentColor"
+                  spellcheck="false"
+                  Placeholder="@(Placeholder ?? I18n.T("Please enter keywords"))">
+</CustomMTextField>

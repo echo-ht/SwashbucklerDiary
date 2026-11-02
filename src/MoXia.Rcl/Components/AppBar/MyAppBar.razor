@@ -1,0 +1,24 @@
+@namespace MoXia.Rcl.Components
+
+<MToolbar Elevation="0">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        <MButton Icon="true"
+                 OnClick="OnClick">
+            <MIcon>
+                arrow_back
+            </MIcon>
+        </MButton>
+
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            <MToolbarTitle Class="font-weight-bold flex-grow-1">
+                <wc-auto-scroll-text>@Title</wc-auto-scroll-text>
+            </MToolbarTitle>
+        }
+    }
+</MToolbar>

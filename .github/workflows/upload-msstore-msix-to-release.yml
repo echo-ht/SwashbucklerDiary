@@ -12,8 +12,8 @@ on:
         type: string
 
 env:
-    APP_NAME: 'SwashbucklerDiary'
-    STORE_ID: '9P6PBVBF466L'
+    APP_NAME: 'MoXia'
+    STORE_ID: ${{ vars.MICROSOFT_STORE_ID }}
 
 jobs:
   upload-store-msix-to-release:

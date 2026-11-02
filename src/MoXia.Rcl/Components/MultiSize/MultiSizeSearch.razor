@@ -1,0 +1,26 @@
+@namespace MoXia.Rcl.Components
+
+<MultiSizeDisplay MdAndUp="true">
+    <MobileContent>
+        <MButton Large="true"
+                 Icon="true"
+                 OnClick="Search">
+            <MIcon>search</MIcon>
+        </MButton>
+    </MobileContent>
+    <DesktopContent>
+        <MTextField @bind-Value="searchText"
+                    Class="rounded-pill surface-container"
+                    Style="max-width:200px;"
+                    TValue="string"
+                    Solo="true"
+                    Flat="true"
+                    Dense="true"
+                    HideDetails="@("auto")"
+                    Color="TextFieldColor"
+                    AppendIcon="search"
+                    OnAppendClick="Search"
+                    OnEnter="Search">
+        </MTextField>
+    </DesktopContent>
+</MultiSizeDisplay>

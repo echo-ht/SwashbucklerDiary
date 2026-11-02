@@ -1,0 +1,36 @@
+@namespace MoXia.Rcl.Layout
+@inherits MainLayoutNavBase
+
+@if (IsPermanentPath)
+{
+    <link href="@cssHref" rel="stylesheet" />
+}
+
+<MBottomNavigation InputValue="Show"
+                   Class="@Class"
+                   ActiveClass="material-symbols_active"
+                   Style="background-color:rgba(var(--m-theme-surface));"
+                   Mandatory="true"
+                   Routable
+                   App="true">
+    @foreach (var item in Items)
+    {
+        <MButton Ripple="false"
+                 Href="@item.Href">
+            <MIcon>
+                @item.Icon
+            </MIcon>
+        </MButton>
+    }
+</MBottomNavigation>
+
+@code {
+    private readonly static string cssHref = $"./_content/{Rcl.Essentials.StaticWebAssets.RclAssemblyName}/css/extend/masa-blazor-extend-enqueued-snackbars.css";
+
+    private bool Show => BreakpointService.Breakpoint.Xs && IsPermanentPath;
+
+    private string Class => new CssBuilder()
+        .Add("justify-space-around")
+        .Add("m-bottom-navigation-hidden", !Show)
+        .ToString();
+}

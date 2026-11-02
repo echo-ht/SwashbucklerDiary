@@ -8,8 +8,8 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true # Disable the .NET first time experience
   DOTNET_CLI_TELEMETRY_OPTOUT: true       # Disable sending .NET CLI telemetry
   DOTNET_VERSION: '10.0'
-  CSPROJ_FILE_PATH: 'src/SwashbucklerDiary.WebAssembly/SwashbucklerDiary.WebAssembly.csproj'
-  INDEX_HTML_PATH: 'src/SwashbucklerDiary.WebAssembly/wwwroot/index.html'
+  CSPROJ_FILE_PATH: 'src/MoXia.WebAssembly/MoXia.WebAssembly.csproj'
+  INDEX_HTML_PATH: 'src/MoXia.WebAssembly/wwwroot/index.html'
 
 jobs:
   deploy:
@@ -51,7 +51,7 @@ jobs:
         uses: SteveSandersonMS/ghaction-rewrite-base-href@v1.1.0
         with:
           html_path: ${{ env.INDEX_HTML_PATH }}
-          base_href: /SwashbucklerDiary/
+          base_href: /${{ github.event.repository.name }}/
 
       # Publish the site
       - name: Publish

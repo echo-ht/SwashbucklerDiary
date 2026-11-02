@@ -1,0 +1,299 @@
+@page "/setting"
+@namespace MoXia.Rcl.Pages
+@inherits ImportantComponentBase
+
+<MyAppBar Title="@(I18n.T("Setting"))"
+          OnClick="NavigateToBack">
+</MyAppBar>
+
+<ScrollContainer>
+    <div class="text-h6 setting-title">
+        @(I18n.T("General"))
+    </div>
+
+    <MCard Class="mb-5"
+           Elevation="0"
+           Rounded="@("lg")">
+        <MList Class="py-0">
+            <MListItem OnClick="@(() => To("updateSetting"))">
+                <MListItemIcon>
+                    <MIcon>
+                        update
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Update setting"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem OnClick="@(() => To("permissionSetting"))">
+                <MListItemIcon>
+                    <MIcon>
+                        manage_accounts
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("System permission"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem OnClick="@(() => To("aiSetting"))">
+                <MListItemIcon>
+                    <MIcon>
+                        auto_awesome
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <MListItemTitle>
+                        <wc-auto-scroll-text>@(I18n.T("AI Notes"))</wc-auto-scroll-text>
+                    </MListItemTitle>
+                    <MListItemSubtitle>
+                        <wc-auto-scroll-text>@(I18n.T("Providers, vector index and privacy"))</wc-auto-scroll-text>
+                    </MListItemSubtitle>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem OnClick="@(() => showClearCache = true)">
+                <MListItemIcon>
+                    <MIcon>
+                        mdi:mdi-trash-can-outline
+                    </MIcon>
+                </MListItemIcon>
+
+                <MListItemContent Style="flex-basis:50%;">
+                    <wc-auto-scroll-text>@(I18n.T("Clear cache"))</wc-auto-scroll-text>
+                </MListItemContent>
+
+                <MListItemContent Class="ms-2" Style="flex-basis:50%;">
+                    <MListItemSubtitle>
+                        <wc-auto-scroll-text class="justify-end" style="width:100%;" text-ltr>@cacheSize</wc-auto-scroll-text>
+                    </MListItemSubtitle>
+                </MListItemContent>
+
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+        </MList>
+    </MCard>
+
+    <div class="text-h6 setting-title">
+        @(I18n.T("Display"))
+    </div>
+
+    <MCard Class="mb-5"
+           Elevation="0"
+           Rounded="@("lg")">
+        <MList Class="py-0">
+            <MListItem OnClick="@(() => To("indexSetting"))">
+                <MListItemIcon>
+                    <MIcon>
+                        home
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Home"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+            <MDivider Class="mx-5"></MDivider>
+            <MListItem OnClick="@(() => To("calendarSetting"))">
+                <MListItemIcon>
+                    <MIcon>
+                        calendar_month
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Calendar"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+        </MList>
+    </MCard>
+
+    <MCard Class="mb-5"
+           Elevation="0"
+           Rounded="@("lg")">
+        <MList Class="py-0">
+            <MListItem OnClick="@(() => To("diarySetting"))">
+                <MListItemIcon>
+                    <MIcon>
+                        book
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Diary"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+            <MDivider Class="mx-5"></MDivider>
+            <MListItem OnClick="@(() => To("templateSetting"))">
+                <MListItemIcon>
+                    <MIcon>
+                        space_dashboard
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Template"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+            <MDivider Class="mx-5"></MDivider>
+            <MListItem OnClick="@(() => To("alertSetting"))">
+                <MListItemIcon>
+                    <MIcon>
+                        call_to_action
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Snackbars"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+            <MDivider Class="mx-5"></MDivider>
+            <MListItem OnClick="@(() => To("diaryCardSetting"))">
+                <MListItemIcon>
+                    <MIcon>
+                        mdi:mdi-card-text-outline
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Diary card"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+            <MDivider Class="mx-5 hidden-sm-and-down"></MDivider>
+            <MListItem Class="hidden-sm-and-down">
+                <MListItemIcon>
+                    <MIcon>
+                        show_chart
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Statistics card"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="showStatisticsCard"
+                                   SettingKey="@nameof(Setting.StatisticsCard)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+        </MList>
+    </MCard>
+
+    <div class="text-h6 setting-title">
+        @(I18n.T("Other"))
+    </div>
+
+    <MCard Class="mb-5"
+           Elevation="0"
+           Rounded="@("lg")">
+        <MList Class="py-0">
+            <MListItem OnClick="@(() => To("urlScheme"))">
+                <MListItemIcon>
+                    <MIcon>
+                        mdi:mdi-link-variant
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>Url Scheme</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem>
+                <MListItemIcon>
+                    <MIcon>
+                        flash_on
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <MListItemTitle>
+                        <wc-auto-scroll-text>@(I18n.T("Quick record"))</wc-auto-scroll-text>
+                    </MListItemTitle>
+                    <MListItemSubtitle>
+                        <wc-auto-scroll-text>@(I18n.T("After opening the application, directly enter the editing page"))</wc-auto-scroll-text>
+                    </MListItemSubtitle>
+                </MListItemContent>
+                <MListItemAction>
+                    <SettingSwitch @bind-Value="showQuickRecord"
+                                   SettingKey="@nameof(Setting.QuickRecord)">
+                    </SettingSwitch>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem OnClick="@(() => To("appLockSetting"))">
+                <MListItemIcon>
+                    <MIcon>
+                        lock
+                    </MIcon>
+                </MListItemIcon>
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("App lock"))</wc-auto-scroll-text>
+                </MListItemContent>
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+        </MList>
+    </MCard>
+
+</ScrollContainer>
+
+<CustomMDialog @bind-MyValue="showClearCache"
+               ContentClass="rounded-lg"
+               MaxWidth="420">
+    <MCard>
+        <MCardTitle Class="font-weight-bold flex-nowrap">
+            <wc-auto-scroll-text>@(I18n.T("Clear cache"))</wc-auto-scroll-text>
+        </MCardTitle>
+        <MCardText Class="pb-0">
+            @(I18n.T("Are you sure to clear all caches?"))
+        </MCardText>
+        <MCardActions>
+            <MSpacer></MSpacer>
+            <MButton Text="true"
+                     OnClick="() => showClearCache = false">
+                @(I18n.T("Cancel"))
+            </MButton>
+            <MButton Text="true"
+                     Color="red"
+                     OnClick="ClearCache">
+                @(I18n.T("OK"))
+            </MButton>
+        </MCardActions>
+    </MCard>
+</CustomMDialog>

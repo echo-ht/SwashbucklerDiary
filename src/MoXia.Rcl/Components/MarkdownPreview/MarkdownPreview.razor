@@ -1,0 +1,47 @@
+@namespace MoXia.Rcl.Components
+@inherits MyComponentBase
+
+<VditorMarkdownPreview @ref="vditorMarkdownPreview"
+                       Value="@Value"
+                       Class="@InternalClass"
+                       Style="@Style"
+                       Options="_options"
+                       OnAfter="HandleOnAfter"
+                       OnDblClick="OnDblClick">
+</VditorMarkdownPreview>
+
+<PreviewImageDialog @bind-Visible="showPreviewImage"
+                    Src="@previewImageSrc">
+</PreviewImageDialog>
+
+<CustomMNavigationDrawer MyValue="MobileOutline"
+                         MyValueChanged="InternalMobileOutlineChanged"
+                         Right="RightOutline"
+                         Fixed
+                         Temporary
+                         Touchless>
+    <div style="display: flex;flex-direction: column;height:100%;">
+        <MyAppBar>
+            <MToolbarTitle Class="font-weight-bold flex-grow-1">
+                <wc-auto-scroll-text>@I18n.T("Outline")</wc-auto-scroll-text>
+            </MToolbarTitle>
+            <MButton Icon="true"
+                     OnClick="CloseMobileOutline">
+                <MIcon>close</MIcon>
+            </MButton>
+        </MyAppBar>
+        <ScrollContainer ContentClass="pa-0">
+            <div @ref="moblieOutlineElement"
+                 style="display: block !important;">
+            </div>
+        </ScrollContainer>
+    </div>
+</CustomMNavigationDrawer>
+
+@code {
+    private string? InternalClass => new CssBuilder()
+        .Add(Class)
+        .Add("first-line-indent", FirstLineIndent)
+        .Add("task-list-line-through", TaskListLineThrough)
+        .ToString();
+}

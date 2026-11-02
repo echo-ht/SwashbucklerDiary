@@ -1,5 +1,8 @@
 name: releases
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -7,19 +10,24 @@ on:
         type: boolean
         default: true
         description: Upload GitHub Release or Microsoft Store
+      publishStore:
+        type: boolean
+        default: false
+        description: Upload MSIX to Microsoft Store (requires certificate and Partner Center secrets)
 
 env:
   DOTNET_NOLOGO: true                     # Disable the .NET logo
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true # Disable the .NET first time experience
   DOTNET_CLI_TELEMETRY_OPTOUT: true       # Disable sending .NET CLI telemetry
   DOTNET_VERSION: '10.0'
-  MAUI_CSPROJ_PATH: 'src/SwashbucklerDiary.Maui'
-  MAUI_CSPROJ_FILE_PATH: 'src/SwashbucklerDiary.Maui/SwashbucklerDiary.Maui.csproj'
-  GTK_CSPROJ_PATH: 'src/SwashbucklerDiary.Gtk'
-  GTK_CSPROJ_FILE_PATH: 'src/SwashbucklerDiary.Gtk/SwashbucklerDiary.Gtk.csproj'
+  MAUI_CSPROJ_PATH: 'src/MoXia.Maui'
+  MAUI_CSPROJ_FILE_PATH: 'src/MoXia.Maui/MoXia.Maui.csproj'
+  GTK_CSPROJ_PATH: 'src/MoXia.Gtk'
+  GTK_CSPROJ_FILE_PATH: 'src/MoXia.Gtk/MoXia.Gtk.csproj'
+  MCP_CSPROJ_FILE_PATH: 'src/MoXia.Mcp/MoXia.Mcp.csproj'
   ARTIFACT_PATH: 'artifacts'
-  APP_NAME: 'SwashbucklerDiary'
-  STORE_ID: '9P6PBVBF466L'
+  APP_NAME: 'MoXia'
+  STORE_ID: ${{ vars.MICROSOFT_STORE_ID }}
 
 jobs:
   prepare:
@@ -109,7 +117,7 @@ jobs:
 
       # Replace the version in Package.appxmanifest
       - name: Update version in Package.appxmanifest
-        if: matrix.os == 'windows'
+        if: matrix.os == 'windows' && matrix.packaged == true && inputs.publishStore
         shell: bash
         run: |
           sed -i "s/Version=\"0\.0\.0\.0\"/Version=\"${{ needs.prepare.outputs.displayVersion }}.0\"/" \
@@ -160,7 +168,7 @@ jobs:
 
       # Publish MAUI Windows packaged
       - name: Publish MAUI Windows packaged
-        if: matrix.os == 'windows' && matrix.packaged == true
+        if: matrix.os == 'windows' && matrix.packaged == true && inputs.publishStore
         shell: pwsh
         run: |
           dotnet publish ${{ env.MAUI_CSPROJ_FILE_PATH }} `
@@ -204,7 +212,7 @@ jobs:
       
       # Move Windows packaged Publish File
       - name: Move Windows packaged Publish File
-        if: matrix.os == 'windows' && matrix.packaged == true
+        if: matrix.os == 'windows' && matrix.packaged == true && inputs.publishStore
         shell: bash
         run: |
           file=$(find "${{ env.MAUI_CSPROJ_PATH }}/bin/Release/net${{ env.DOTNET_VERSION }}-windows10.0.19041.0/win-x64/AppPackages" -name "*.msix" -type f | head -1)
@@ -212,10 +220,54 @@ jobs:
    
       # Upload Artifact
       - name: Upload Artifact
+        if: matrix.packaged != true || inputs.publishStore
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.ext }}
           path: ${{ env.ARTIFACT_PATH }}/
+
+  build-mcp:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { rid: win-x64, runner: windows-latest, ext: .exe }
+          - { rid: linux-x64, runner: ubuntu-latest, ext: '' }
+          - { rid: osx-x64, runner: macos-15, ext: '' }
+          - { rid: osx-arm64, runner: macos-15, ext: '' }
+
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '${{ env.DOTNET_VERSION }}.x'
+
+      - name: Publish MCP server
+        shell: bash
+        run: |
+          mkdir -p "${{ env.ARTIFACT_PATH }}"
+          dotnet publish "${{ env.MCP_CSPROJ_FILE_PATH }}" \
+            -c Release \
+            -r "${{ matrix.rid }}" \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -p:DebugType=None \
+            -p:DebugSymbols=false \
+            -p:Version="${{ needs.prepare.outputs.displayVersion }}" \
+            -o "publish/mcp-${{ matrix.rid }}"
+          cp "publish/mcp-${{ matrix.rid }}/MoXia.Mcp${{ matrix.ext }}" \
+            "${{ env.ARTIFACT_PATH }}/${{ env.APP_NAME }}-MCP-${{ needs.prepare.outputs.displayVersion }}-${{ matrix.rid }}${{ matrix.ext }}"
+
+      - name: Upload MCP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-${{ matrix.rid }}
+          path: ${{ env.ARTIFACT_PATH }}/${{ env.APP_NAME }}-MCP-*
 
   build-linux:
     needs: prepare
@@ -285,7 +337,7 @@ jobs:
           path: ${{ env.ARTIFACT_PATH }}/
 
   upload_Microsoft_Store:
-    if: inputs.upload
+    if: inputs.publishStore
     needs:
       - prepare
       - build-maui
@@ -316,6 +368,7 @@ jobs:
       - prepare
       - build-maui
       - build-linux
+      - build-mcp
     runs-on: ubuntu-latest
 
     steps:

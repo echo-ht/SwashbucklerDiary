@@ -1,0 +1,8 @@
+@namespace MoXia.Rcl.Components
+@inherits MediaResourceComponentBase
+
+<img @oncontextmenu="OpenMenu"
+     @oncontextmenu:preventDefault="true"
+     @attributes="activatorAttributes"
+     class="image-card rounded-lg"
+     src="@mediaResourcePath?.DisPlayedUrl" />

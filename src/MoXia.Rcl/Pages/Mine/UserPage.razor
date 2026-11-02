@@ -1,0 +1,106 @@
+@page "/user"
+@namespace MoXia.Rcl.Pages
+@inherits ImportantComponentBase
+
+<MyAppBar Title="@(I18n.T("User Setting"))"
+          OnClick="NavigateToBack">
+</MyAppBar>
+
+<ScrollContainer>
+    <MCard Class="mb-5"
+           Elevation="0"
+           Rounded="@("lg")">
+        <MList Class="py-0">
+            <MListItem OnClick="()=>showEditAvatar=true">
+                <MListItemIcon>
+                    <MIcon>
+                        account_circle
+                    </MIcon>
+                </MListItemIcon>
+
+                <MListItemContent>
+                    <wc-auto-scroll-text>@(I18n.T("Avatar"))</wc-auto-scroll-text>
+                </MListItemContent>
+
+                <MListItemAction>
+                    <MAvatar Rounded="@("lg")"
+                             Size="32">
+                        <img class="user-avatar" src="@avatarResourceInfo?.DisPlayedUrl" />
+                    </MAvatar>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem OnClick="()=>showEditUserName=true">
+                <MListItemIcon>
+                    <MIcon>
+                        id_card
+                    </MIcon>
+                </MListItemIcon>
+
+                <MListItemContent Style="flex-basis:50%;">
+                    <wc-auto-scroll-text>@(I18n.T("NickName"))</wc-auto-scroll-text>
+                </MListItemContent>
+
+                <MListItemContent Class="ms-2" Style="flex-basis:50%;">
+                    <MListItemSubtitle>
+                        <wc-auto-scroll-text class="justify-end" style="width:100%;">@NickName</wc-auto-scroll-text>
+                    </MListItemSubtitle>
+                </MListItemContent>
+
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+
+            <MDivider Class="mx-5"></MDivider>
+
+            <MListItem OnClick="()=>showEditSign = true">
+                <MListItemIcon>
+                    <MIcon>
+                        mdi:mdi-file-sign
+                    </MIcon>
+                </MListItemIcon>
+
+                <MListItemContent Style="flex-basis:50%;">
+                    <MListItemTitle>
+                        <wc-auto-scroll-text>@(I18n.T("Sign"))</wc-auto-scroll-text>
+                    </MListItemTitle>
+                </MListItemContent>
+
+                <MListItemContent Class="ms-2" Style="flex-basis:50%;">
+                    <MListItemSubtitle>
+                        <wc-auto-scroll-text class="justify-end" style="width:100%;">@Sign</wc-auto-scroll-text>
+                    </MListItemSubtitle>
+                </MListItemContent>
+
+                <MListItemAction>
+                    <MIcon>chevron_right</MIcon>
+                </MListItemAction>
+            </MListItem>
+        </MList>
+    </MCard>
+</ScrollContainer>
+
+<MultiSizeListDialog @bind-Visible="showEditAvatar"
+                 Title="@(I18n.T("Edit avatar"))"
+                 DynamicListItems="editAvatarMethods">
+</MultiSizeListDialog>
+
+<InputDialog @bind-Visible="showEditUserName"
+             Text="@NickName"
+             Title="@(I18n.T("Edit NickName"))"
+             Placeholder="@(I18n.T("Please enter NickName"))"
+             OnOK="SaveUserName">
+</InputDialog>
+
+<InputDialog @bind-Visible="showEditSign"
+             MultiLine
+             Text="@Sign"
+             Title="@(I18n.T("Edit Sign"))"
+             MaxLength="100"
+             Placeholder="@(I18n.T("Please enter Sign"))"
+             OnOK="SaveSign">
+</InputDialog>

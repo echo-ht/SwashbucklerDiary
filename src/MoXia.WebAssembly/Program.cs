@@ -1,0 +1,26 @@
+using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MoXia.Rcl.Extensions;
+using MoXia.WebAssembly;
+using MoXia.WebAssembly.Extensions;
+
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
+
+builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+builder.Services.AddBlazoredLocalStorageAsSingleton();
+
+await builder.Services.AddFileSystem();
+
+await builder.Services.AddMasaBlazorConfig(builder.HostEnvironment.BaseAddress);
+
+builder.Services.AddSqlSugarConfig(SQLiteConstants.ConnectionString, SQLiteConstants.PrivacyConnectionString, SQLiteConstants.LogConnectionString);
+
+builder.Services.AddSerilogConfig(SQLiteConstants.LogDatabasePath);
+
+builder.Services.AddDependencyInjection();
+
+await builder.Build().RunAsync();

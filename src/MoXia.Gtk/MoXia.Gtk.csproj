@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<CompressionEnabled>false</CompressionEnabled>
+
+		<ApplicationId>com.moxia.diary</ApplicationId>
+		<Version>1.0.0</Version>
+
+		<!-- https://github.com/qmfrederik/dotnet-packaging -->
+		<PackagePrefix>$(ApplicationId)</PackagePrefix>
+		<Prefix>/opt/apps/$(ApplicationId)</Prefix>
+		<PackageMaintainer>Mo Xia &lt;REPLACE_ME@example.com&gt;</PackageMaintainer>
+		<PackageDescription>A local-first, cross platform diary application</PackageDescription>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<!-- Debug configuration settings -->
+		<ApplicationId>com.moxia.diary.debug</ApplicationId>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<DebDependency Include="libwebkitgtk-6.0-4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Resources/AppIcon/moxia.png" CopyToPublishDirectory="PreserveNewest">
+			<LinuxPath>/usr/share/pixmaps/moxia.png</LinuxPath>
+		</Content>
+		<Content Include="Platform/com.moxia.diary.desktop" CopyToPublishDirectory="PreserveNewest">
+			<LinuxPath>/usr/share/applications/com.moxia.diary.desktop</LinuxPath>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="GirCore.Gtk-4.0" Version="0.7.0" />
+		<PackageReference Include="GirCore.WebKit-6.0" Version="0.7.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebView" Version="10.0.*" />
+		<PackageReference Include="Serilog.Sinks.SQLite.Maui" Version="2.0.1" />
+		<PackageReference Include="Yu-Core.AspNetCore.Components.WebView.Gtk" Version="0.1.7" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Maui.Essentials\Maui.Essentials.csproj" />
+		<ProjectReference Include="..\MoXia.Control\MoXia.Control.csproj" />
+		<ProjectReference Include="..\MoXia.Rcl.Hybird\MoXia.Rcl.Hybird.csproj" />
+		<ProjectReference Include="..\MoXia.Rcl\MoXia.Rcl.csproj">
+			<AdditionalProperties>EnableCopyRclStaticFiles=true</AdditionalProperties>
+		</ProjectReference>
+	</ItemGroup>
+
+	<Import Project="..\Maui.Essentials\AssemblyAttributes.targets" />
+</Project>

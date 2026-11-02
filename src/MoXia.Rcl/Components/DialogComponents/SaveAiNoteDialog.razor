@@ -1,0 +1,55 @@
+@namespace MoXia.Rcl.Components
+@inherits DialogComponentBase
+
+<CustomMDialog MyValue="Visible"
+               MyValueChanged="InternalVisibleChanged"
+               ContentClass="rounded-xl"
+               MaxWidth="760"
+               DisableAutoFocus>
+    <MCard Class="ai-note-dialog">
+        <MCardTitle Class="font-weight-bold flex-nowrap">
+            <MIcon Class="me-3" Color="primary">auto_awesome</MIcon>
+            <wc-auto-scroll-text>@(I18n.T("Save as note"))</wc-auto-scroll-text>
+            <MSpacer></MSpacer>
+            <MButton Icon="true"
+                     OnClick="HandleOnCancel">
+                <MIcon>close</MIcon>
+            </MButton>
+        </MCardTitle>
+        <MCardText>
+            <MTextField @bind-Value="title"
+                        Label="@(I18n.T("Title"))"
+                        Class="mb-3"
+                        Filled
+                        Rounded
+                        HideDetails="@("auto")"
+                        MaxLength="100">
+            </MTextField>
+            <MTextarea @bind-Value="content"
+                       Label="@(I18n.T("Content"))"
+                       Filled
+                       Rounded
+                       HideDetails="@("auto")"
+                       Rows="14"
+                       Class="ai-note-dialog__content">
+            </MTextarea>
+            <div class="text-caption text--secondary mt-2">
+                @(I18n.T("The note will be saved to the current library and added to the vector index."))
+            </div>
+        </MCardText>
+        <MCardActions>
+            <MButton Text
+                     OnClick="HandleOnCancel">
+                @(I18n.T("Cancel"))
+            </MButton>
+            <MButton Color="primary"
+                     Depressed
+                     Loading="Saving"
+                     Disabled="@(Saving || string.IsNullOrWhiteSpace(content))"
+                     OnClick="SaveAsync">
+                <MIcon Class="me-2">note_add</MIcon>
+                @(I18n.T("Save"))
+            </MButton>
+        </MCardActions>
+    </MCard>
+</CustomMDialog>

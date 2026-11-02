@@ -1,25 +1,20 @@
-<h1 align="center">侠客日记</h1>
+<h1 align="center">墨匣</h1>
 
 <div align="center">
 
 [English](./README.en-US.md) | 简体中文
 
-「 侠客日记 」是一个开源、跨平台的本地日记APP。
+「 墨匣 」是一个本地优先、跨平台的开源日记应用。
 
-不是所有日记都叫流水账，这本是侠客的秘籍！记录生活点滴，书写你的江湖传说。
+一方墨匣，收好每一页不想被看见的心事。
 
-![GitHub Repo size](https://img.shields.io/github/repo-size/Yu-Core/SwashbucklerDiary?style=flat-square&color=FF5722)
-[![GitHub license](https://img.shields.io/github/license/Yu-Core/SwashbucklerDiary?style=flat-square)](LICENSE)
-[![GitHub Star](https://img.shields.io/github/stars/Yu-Core/SwashbucklerDiary?style=flat-square&color=FFEE58)](https://github.com/Yu-Core/SwashbucklerDiary/stargazers)
-![Release Download](https://img.shields.io/github/downloads/Yu-Core/SwashbucklerDiary/total?style=flat-square)
-[![Release Version](https://img.shields.io/github/v/release/Yu-Core/SwashbucklerDiary?style=flat-square&color=3cb371)](https://github.com/Yu-Core/SwashbucklerDiary/releases/latest)
-<a href="https://hellogithub.com/repository/f4e1065b09114738915da27ef18ba09b" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=f4e1065b09114738915da27ef18ba09b&claim_uid=jhAc53UNagbM7I9&theme=small" alt="Featured｜HelloGitHub" /></a>
+![GitHub Repo size](https://img.shields.io/github/repo-size/echo-ht/SwashbucklerDiary?style=flat-square&color=FF5722)
+[![GitHub license](https://img.shields.io/github/license/echo-ht/SwashbucklerDiary?style=flat-square)](LICENSE.txt)
+![Release Download](https://img.shields.io/github/downloads/echo-ht/SwashbucklerDiary/total?style=flat-square)
+[![Release Version](https://img.shields.io/github/v/release/echo-ht/SwashbucklerDiary?style=flat-square&color=3cb371)](https://github.com/echo-ht/SwashbucklerDiary/releases/latest)
 [![NET 10.0](https://img.shields.io/badge/dotnet-10.0-purple.svg?style=flat-square&color=512bd4)](https://learn.microsoft.com/zh-cn/dotnet/core/whats-new/dotnet-10)
 
 </div>
-
-## 🔗 在线预览
-[在线演示地址（GitHub Pages）](https://yu-core.github.io/SwashbucklerDiary/)
 
 ## 🛠️ 主要技术栈
 - [Blazor Hybrid](https://learn.microsoft.com/aspnet/core/blazor/hybrid/)
@@ -33,18 +28,8 @@
 - [Vditor](https://b3log.org/vditor/) 
 
 ## 🚀 下载渠道
-- [![Microsoft 应用商店](https://get.microsoft.com/images/zh-cn%20dark.svg)](https://apps.microsoft.com/store/detail/9P6PBVBF466L?launch=true&mode=full)
-- [GitHub 发行版](https://github.com/Yu-Core/SwashbucklerDiary/releases)
-- [123云盘](https://www.123912.com/s/eVjxjv-IfnX)
-- [中国移动云盘](https://yun.139.com/shareweb/#/w/i/2u8omYzvLhqdo) (提取码:3dgn)
-- [百度手机助手](https://shouji.baidu.com/detail/5000042660?source=appbaidu)
-- [豌豆荚](https://www.wandoujia.com/apps/8369224)
-- [酷安](https://www.coolapk.com/apk/937401)
-- [应用宝](https://sj.qq.com/appdetail/com.yucore.swashbucklerdiary)
-- [华为应用市场](https://appgallery.huawei.com/app/C107898911)
-
-## ⬇️ [下载指南](./doc/download-guide.md)
-详见 [./download-guide.md](./download-guide.md) 
+- [GitHub Releases](https://github.com/echo-ht/SwashbucklerDiary/releases)
+- 应用商店上架信息待补充
 
 ## ✨ 特点
 * 极简风格的UI设计
@@ -63,6 +48,8 @@
 * 支持文字、图片分享
 * 支持webdav备份
 * 同一局域网下同步传输
+* AI 笔记助手：任意 OpenAI/DeepSeek 兼容接口、本地向量检索与 RAG 问答
+* MCP 控制：让本机 AI 客户端读取、创建、更新、检索和删除笔记（隐私库需单独授权）
 
 ## 🧩 截图
 <table>
@@ -96,18 +83,18 @@
 ## 🌏️ 支持的语言
 | 代码    | 语言             | 查看                                                             |
 | ------- | ---------------- | ---------------------------------------------------------------- |
-| ar-EG   | 阿拉伯语（埃及）   | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/ar-EG.json)      |
-| de-DE   | 德语             | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/de-DE.json)      |
-| en-US   | 英语（美国）       | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/en-US.json)      |
-| es-ES   | 西班牙语（西班牙） | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/es-ES.json)      |
-| fr-FR   | 法语（法国）       | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/fr-FR.json)      |
-| ja-JP   | 日语             | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/ja-JP.json)      |
-| ko-KR   | 朝鲜语/韩语        | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/ko-KR.json)      |
-| pt-BR   | 葡萄牙语（巴西）   | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/pt-BR.json)      |
-| ru-RU   | 俄语              | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/ru-RU.json)      |
-| vi-VN   | 越南语            | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/vi-VN.json)      |
-| zh-CN   | 中文（简体）       | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/zh-CN.json)      |
-| zh-TW   | 中文（繁体）       | [查看](./src/SwashbucklerDiary.Rcl/wwwroot/i18n/zh-TW.json)      |
+| ar-EG   | 阿拉伯语（埃及）   | [查看](./src/MoXia.Rcl/wwwroot/i18n/ar-EG.json)      |
+| de-DE   | 德语             | [查看](./src/MoXia.Rcl/wwwroot/i18n/de-DE.json)      |
+| en-US   | 英语（美国）       | [查看](./src/MoXia.Rcl/wwwroot/i18n/en-US.json)      |
+| es-ES   | 西班牙语（西班牙） | [查看](./src/MoXia.Rcl/wwwroot/i18n/es-ES.json)      |
+| fr-FR   | 法语（法国）       | [查看](./src/MoXia.Rcl/wwwroot/i18n/fr-FR.json)      |
+| ja-JP   | 日语             | [查看](./src/MoXia.Rcl/wwwroot/i18n/ja-JP.json)      |
+| ko-KR   | 朝鲜语/韩语        | [查看](./src/MoXia.Rcl/wwwroot/i18n/ko-KR.json)      |
+| pt-BR   | 葡萄牙语（巴西）   | [查看](./src/MoXia.Rcl/wwwroot/i18n/pt-BR.json)      |
+| ru-RU   | 俄语              | [查看](./src/MoXia.Rcl/wwwroot/i18n/ru-RU.json)      |
+| vi-VN   | 越南语            | [查看](./src/MoXia.Rcl/wwwroot/i18n/vi-VN.json)      |
+| zh-CN   | 中文（简体）       | [查看](./src/MoXia.Rcl/wwwroot/i18n/zh-CN.json)      |
+| zh-TW   | 中文（繁体）       | [查看](./src/MoXia.Rcl/wwwroot/i18n/zh-TW.json)      |
 
 ## ⌨️ 开发环境
 [Visual Studio 2026](https://learn.microsoft.com/visualstudio/install/install-visual-studio?view=visualstudio)
@@ -140,6 +127,9 @@
 
 ## 🏗️ [项目结构](./directory-structure.md)
 详见 [./directory-structure.md](./directory-structure.md)  
+
+## 📄 许可证与来源
+本项目基于 [Yu-Core/SwashbucklerDiary](https://github.com/Yu-Core/SwashbucklerDiary) 二次开发，遵循 [AGPL-3.0](./LICENSE.txt)。上游代码版权归其贡献者所有。
 
 ## 🙏 感谢以下开源项目
 - [.NET MAUI](https://github.com/dotnet/maui)
@@ -174,8 +164,3 @@
 - [WebDavClient](https://github.com/skazantsev/WebDavClient)
 - [wc-waterfall](https://github.com/huodoushigemi/wc-flow-layout)
 - [Vditor](https://github.com/Vanessa219/vditor)
-
-## ☕捐助
-项目的发展离不开你的支持，请作者喝杯咖啡吧☕
-
-<img src="./res/sponsor/sponsor.png" width=300>

@@ -1,0 +1,6 @@
+<Solution>
+	<Project Path="src/MoXia.Rcl/MoXia.Rcl.csproj" />
+	<Project Path="src/MoXia.Rcl.Web/MoXia.Rcl.Web.csproj" />
+	<Project Path="src/MoXia.Shared/MoXia.Shared.csproj" />
+	<Project Path="src/MoXia.WebAssembly/MoXia.WebAssembly.csproj" />
+</Solution>

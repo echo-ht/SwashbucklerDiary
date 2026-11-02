@@ -1,0 +1,17 @@
+@namespace MoXia.Rcl.Components
+@inherits MyComponentBase
+
+<div @ref="Ref" class="@InternalClass" style="@InternalStyle" @ondblclick="OnDblClick"></div>
+
+@code {
+    string? InternalClass => new CssBuilder()
+        .Add("pb-3")
+        .Add(Class)
+        .ToString();
+
+    string? InternalStyle => new StyleBuilder()
+        .Add("flex", "1")
+        .Add("min-width", "1px")
+        .Add(Style)
+        .Build();
+}

@@ -1,0 +1,133 @@
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+using MoXia.Rcl.Components;
+using MoXia.Rcl.Models;
+using MoXia.Rcl.Services;
+using MoXia.Shared;
+
+namespace MoXia.Rcl.Pages
+{
+    public partial class UserPage : ImportantComponentBase
+    {
+        private string? userName;
+
+        private string? sign;
+
+        private string? avatar;
+
+        private bool showEditAvatar;
+
+        private bool showEditUserName;
+
+        private bool showEditSign;
+
+        private MediaResourcePath? avatarResourceInfo;
+
+        private List<DynamicListItem> editAvatarMethods = [];
+
+        [Inject]
+        private IAvatarService AvatarService { get; set; } = default!;
+
+        [Inject]
+        private ILogger<UserPage> Logger { get; set; } = default!;
+
+        [Inject]
+        private IMediaResourceManager MediaResourceManager { get; set; } = default!;
+
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+
+            LoadView();
+        }
+
+        protected override void ReadSettings()
+        {
+            base.ReadSettings();
+
+            userName = SettingService.Get(s => s.NickName, default!);
+            sign = SettingService.Get(s => s.Sign, default!);
+            var avatarValue = SettingService.Get(s => s.Avatar);
+            SetAvatar(avatarValue);
+        }
+
+        private string? NickName => userName ?? I18n.T("Mo Xia");
+
+        private string? Sign => sign ?? I18n.T("After the incident, brush off your clothes and hide deep in your name");
+
+        private void LoadView()
+        {
+            editAvatarMethods =
+            [
+                new(this, "Photos","image",PickPhoto),
+                new(this, "Capture","photo_camera",OnCapture),
+            ];
+        }
+
+        private async Task SaveSign(string tagName)
+        {
+            showEditSign = false;
+            if (!string.IsNullOrWhiteSpace(tagName) && tagName != sign)
+            {
+                sign = tagName;
+                await SettingService.SetAsync(s => s.Sign, sign);
+            }
+            await HandleAchievements(Achievement.Sign);
+        }
+
+        private async Task SaveUserName(string tagName)
+        {
+            showEditUserName = false;
+            if (!string.IsNullOrWhiteSpace(tagName) && tagName != userName)
+            {
+                userName = tagName;
+                await SettingService.SetAsync(s => s.NickName, userName);
+            }
+            await HandleAchievements(Achievement.NickName);
+        }
+
+        private Task PickPhoto()
+            => SetAvatarAsync(AvatarService.SetAvatarByPickPhotoAsync);
+
+        private Task OnCapture()
+            => SetAvatarAsync(AvatarService.SetAvatarByCaptureAsync);
+
+        private async Task SetAvatarAsync(Func<Task<string>> func)
+        {
+            showEditAvatar = false;
+            StateHasChanged();
+
+            AlertService.StartLoading();
+
+            string? photoPath = null;
+            try
+            {
+                photoPath = await func.Invoke();
+            }
+            catch (Exception e)
+            {
+                await AlertService.ErrorAsync(I18n.T("Change failed"));
+                Logger.LogError(e, I18n.T("Change failed"));
+            }
+            finally
+            {
+                AlertService.StopLoading();
+            }
+
+            if (string.IsNullOrEmpty(photoPath))
+            {
+                return;
+            }
+
+            SetAvatar(photoPath);
+            StateHasChanged();
+            await HandleAchievements(Achievement.Avatar);
+        }
+
+        private void SetAvatar(string value)
+        {
+            avatar = value;
+            avatarResourceInfo = MediaResourceManager.ToMediaResourcePath(NavigationManager, avatar);
+        }
+    }
+}

@@ -1,0 +1,32 @@
+@namespace MoXia.Rcl.Components
+@inherits MyComponentBase
+
+<MCard Class="pa-4"
+       Elevation="0"
+       Rounded="@("lg")">
+    <MListItem Dense="true">
+        <MListItemContent Class="font-weight-bold">
+            <wc-auto-scroll-text>@(I18n.T("Statistics"))</wc-auto-scroll-text>
+        </MListItemContent>
+    </MListItem>
+    <MListItem Dense="true">
+        <MListItemContent>
+            <wc-auto-scroll-text>@(I18n.T("Tag count")): @(TagCount)</wc-auto-scroll-text>
+        </MListItemContent>
+    </MListItem>
+    <MListItem Dense="true">
+        <MListItemContent>
+            <wc-auto-scroll-text>@(I18n.T("Diary count")): @(DiaryCount)</wc-auto-scroll-text>
+        </MListItemContent>
+    </MListItem>
+    <MListItem Dense="true">
+        <MListItemContent>
+            <wc-auto-scroll-text>@(I18n.T("Earliest date")): @(EarliestDate)</wc-auto-scroll-text>
+        </MListItemContent>
+    </MListItem>
+    <MListItem Dense="true">
+        <MListItemContent>
+            <wc-auto-scroll-text>@(I18n.T("Last date")): @(LastDate)</wc-auto-scroll-text>
+        </MListItemContent>
+    </MListItem>
+</MCard>

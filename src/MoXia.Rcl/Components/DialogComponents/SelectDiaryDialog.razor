@@ -1,0 +1,54 @@
+@namespace MoXia.Rcl.Components
+@inherits DialogComponentBase
+
+<CustomMDialog MyValue="Visible"
+               MyValueChanged="InternalVisibleChanged"
+               ContentStyle="display: flex;flex-direction: column;"
+               Fullscreen="true"
+               Eager
+               Transition=""
+               OnBeforeShowContent="HandleOnBeforeShowContent"
+               OnAfterShowContent="OnAfterShowContent">
+    <MyAppBar>
+        <MButton Icon="true"
+                 OnClick="HandleOnCancel">
+            <MIcon>
+                arrow_back
+            </MIcon>
+        </MButton>
+
+        @if (!showSearch)
+        {
+            <MToolbarTitle Class="font-weight-bold flex-grow-1">
+                <wc-auto-scroll-text>@(I18n.T("Select diary"))</wc-auto-scroll-text>
+            </MToolbarTitle>
+        }
+
+        <VisibleTextField @bind-Visible="showSearch"
+                          @bind-Value="search"
+                          OnInput="UpdateItemsAsync">
+        </VisibleTextField>
+
+        <MButton Icon="true"
+                 OnClick="() => showSearch = !showSearch">
+            <MIcon>
+                search
+            </MIcon>
+        </MButton>
+    </MyAppBar>
+
+    <ScrollContainer Id="@scrollContainerId">
+        <DiaryCardList @bind-Value="items"
+                       Tags="Tags"
+                       TagsChanged="TagsChanged"
+                       HideStatisticsCard
+                       OnClick="OnOK">
+        </DiaryCardList>
+    </ScrollContainer>
+
+    <div class="right-bottom-float-area">
+        <BackTopButton Selector="@($"#{scrollContainerId}")">
+        </BackTopButton>
+    </div>
+</CustomMDialog>
+

@@ -1,0 +1,24 @@
+@namespace MoXia.Rcl.Components
+@inherits DialogComponentBase
+
+<CustomMDialog MyValue="Visible"
+               MyValueChanged="InternalVisibleChanged"
+               ContentClass="rounded-lg"
+               Width="@("auto")"
+               OnBeforeShowContent="BeforeShowContent">
+    <MTimePicker @bind-Value="internalValue"
+                 Landscape
+                 Format="TimeFormat.Hr24"
+                 Scrollable>
+        <MSpacer></MSpacer>
+        <MButton Text="true"
+                 OnClick="HandleOnCancel">
+            @(I18n.T("Cancel"))
+        </MButton>
+        <MButton Text="true"
+                 Color="primary"
+                 OnClick="HandleOnOK">
+            @(I18n.T("OK"))
+        </MButton>
+    </MTimePicker>
+</CustomMDialog>
