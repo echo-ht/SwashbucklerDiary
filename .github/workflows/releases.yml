@@ -56,7 +56,7 @@ jobs:
           - { os: android, arch: x64, runner: windows-latest, ext: apk, glob: '*Signed.apk' }
           - { os: ios, arch: arm64, runner: macos-latest, ext: ipa, glob: '*.ipa' }
           - { os: maccatalyst, arch: arm64, runner: macos-latest, ext: pkg, glob: '*.pkg' }
-          - { os: maccatalyst, arch: x64, runner: macos-15-intel, ext: pkg, glob: '*.pkg' }
+          - { os: maccatalyst, arch: x64, runner: macos-latest, ext: pkg, glob: '*.pkg' }
           - { os: windows, arch: x64, runner: windows-latest, ext: msix, packaged: true }
           - { os: windows, arch: x64, runner: windows-latest, ext: zip, packaged: false }
 
@@ -234,7 +234,7 @@ jobs:
         include:
           - { rid: win-x64, runner: windows-latest, ext: .exe }
           - { rid: linux-x64, runner: ubuntu-latest, ext: '' }
-          - { rid: osx-x64, runner: macos-15-intel, ext: '' }
+          - { rid: osx-x64, runner: macos-latest, ext: '' }
           - { rid: osx-arm64, runner: macos-latest, ext: '' }
 
     runs-on: ${{ matrix.runner }}
