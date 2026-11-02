@@ -315,13 +315,20 @@ jobs:
       # Publish Package
       - name: Publish
         run: |
-          dotnet restore ${{ env.GTK_CSPROJ_FILE_PATH }} -r ${{ matrix.os }}-${{ matrix.arch }}
+          dotnet build-server shutdown
+          rm -f src/MoXia.Rcl/obj/Release/net${{ env.DOTNET_VERSION }}/rpswa.dswa.cache.json
+          dotnet restore ${{ env.GTK_CSPROJ_FILE_PATH }} \
+            -r ${{ matrix.os }}-${{ matrix.arch }} \
+            -p:RestoreDisableParallel=true
           dotnet msbuild ${{ env.GTK_CSPROJ_FILE_PATH }} \
             /t:${{ matrix.t }} \
+            /m:1 \
+            /nodeReuse:false \
             /p:TargetFramework=net${{ env.DOTNET_VERSION }} \
             /p:RuntimeIdentifier=${{ matrix.os }}-${{ matrix.arch }} \
             /p:Configuration=Release \
-            /p:SelfContained=true
+            /p:SelfContained=true \
+            /p:BuildInParallel=false
 
       # Move Publish File
       - name: Move Publish File
